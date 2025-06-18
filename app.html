@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>اجتماع بابا وماما - كنيسة المرقسية</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      padding: 1rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    .flex {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-danger {
+      background-color: #e74c3c;
+    }
+    .hidden {
+      display: none;
+    }
+    svg {
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>اجتماع بابا وماما - كنيسة المرقسية</h1>
+</header>
+
+<main id="app">
+
+  <!-- Login Screen -->
+  <div id="loginScreen">
+    <h2>تسجيل الدخول</h2>
+    <input type="text" id="inviteCode" placeholder="أدخل كود الدعوة"/>
+    <button onclick="login()">دخول</button>
+  </div>
+
+  <!-- Home Screen -->
+  <div id="homeScreen" class="hidden">
+    <h2>الرئيسية</h2>
+    <button onclick="showSection('register')">تسجيل عضو جديد</button>
+    <button onclick="showSection('attendance')">تسجيل الحضور</button>
+    <button onclick="showSection('reports')">التقارير</button>
+    <button onclick="showSection('members')">بيانات الأعضاء</button>
+    <button onclick="logout()">تسجيل الخروج</button>
+  </div>
+
+  <!-- Register Member -->
+  <div id="register" class="hidden">
+    <button class="btn btn-danger" onclick="goHome()">الرئيسية</button>
+    <h2>تسجيل عضو جديد</h2>
+    <input type="text" id="fullName" placeholder="الاسم الكامل"/>
+    <select id="gender">
+      <option value="">اختر النوع</option>
+      <option value="بابا">بابا</option>
+      <option value="ماما">ماما</option>
+    </select>
+    <input type="text" id="phone" placeholder="رقم التليفون"/>
+    <input type="text" id="address" placeholder="العنوان"/>
+    <input type="text" id="priest" placeholder="كاهن المنطقة"/>
+    <input type="number" id="childrenCount" placeholder="عدد الأطفال"/>
+    <input type="text" id="childrenAges" placeholder="أعمار الأطفال مفصولة بفواصل"/>
+    <input type="text" id="job" placeholder="الوظيفة"/>
+    <input type="text" id="idNumber" placeholder="رقم الهوية"/>
+    <select id="preferredVisit">
+      <option value="">الطريقة المفضلة للافتقاد</option>
+      <option value="مكالمة">مكالمة</option>
+      <option value="زيارة">زيارة</option>
+      <option value="لا ارغب">لا أرغب</option>
+    </select>
+    <select id="spouseStatus">
+      <option value="">حالة الزوج/ة</option>
+      <option value="موجود">موجود</option>
+      <option value="مسافر">مسافر</option>
+      <option value="أرمل">أرمل</option>
+      <option value="منفصل">منفصل</option>
+    </select>
+    <input type="date" id="dob" placeholder="تاريخ الميلاد"/>
+    <button onclick="saveMember()">حفظ</button>
+  </div>
+
+  <!-- Attendance -->
+  <div id="attendance" class="hidden">
+    <button class="btn btn-danger" onclick="goHome()">الرئيسية</button>
+    <h2>تسجيل الحضور الأسبوعي</h2>
+    <input type="date" id="attendanceDate"/>
+    <table id="membersTable"></table>
+    <button onclick="submitAttendance()">حفظ الحضور</button>
+  </div>
+
+  <!-- Reports -->
+  <div id="reports" class="hidden">
+    <button class="btn btn-danger" onclick="goHome()">الرئيسية</button>
+    <h2>التقارير</h2>
+    <select id="reportType">
+      <option value="weekly">أسبوعي</option>
+      <option value="monthly">شهري</option>
+    </select>
+    <select id="memberSelect"></select>
+    <button onclick="generateReport()">توليد تقرير</button>
+    <pre id="reportOutput"></pre>
+  </div>
+
+  <!-- Members List -->
+  <div id="members" class="hidden">
+    <button class="btn btn-danger" onclick="goHome()">الرئيسية</button>
+    <h2>بيانات الأعضاء</h2>
+    <input type="text" id="searchInput" oninput="filterMembers()" placeholder="ابحث بالاسم أو الهاتف أو عدد الأطفال"/>
+    <button onclick="exportToExcel()">تصدير إلى Excel</button>
+    <button onclick="exportToPDF()">تصدير إلى PDF</button>
+    <ul id="memberList"></ul>
+  </div>
+
+  <!-- Single Member Page -->
+  <div id="memberPage" class="hidden">
+    <button class="btn btn-danger" onclick="goHome()">الرئيسية</button>
+    <h2 id="memberName"></h2>
+    <p><strong>النوع:</strong> <span id="memberGender"></span></p>
+    <p><strong>رقم الهاتف:</strong> <span id="memberPhone"></span></p>
+    <p><strong>العنوان:</strong> <span id="memberAddress"></span></p>
+    <p><strong>الكنيسة:</strong> <span id="memberPriest"></span></p>
+    <p><strong>عدد الأطفال:</strong> <span id="memberChildrenCount"></span></p>
+    <p><strong>أعمار الأطفال:</strong> <span id="memberChildrenAges"></span></p>
+    <p><strong>الوظيفة:</strong> <span id="memberJob"></span></p>
+    <p><strong>الهوية:</strong> <span id="memberIdNumber"></span></p>
+    <p><strong>الطريقة المفضلة:</strong> <span id="memberPreferredVisit"></span></p>
+    <p><strong>حالة الزوج/ة:</strong> <span id="memberSpouseStatus"></span></p>
+    <p><strong>تاريخ الميلاد:</strong> <span id="memberDob"></span></p>
+    <p><strong>الباركود:</strong></p>
+    <svg id="memberBarcode" style="width: 200px;"></svg>
+    <button onclick="exportMemberToExcel()">تصدير إلى Excel</button>
+    <button onclick="exportMemberToPDF()">تصدير إلى PDF</button>
+
+    <button onclick="callMember()">اتصل</button>
+    <button onclick="whatsappMember()">واتساب</button>
+    <h3>سجل الحضور</h3>
+    <table id="attendanceLog"></table>
+    <h3>سجل الافتقاد</h3>
+    <table id="visitationLog"></table>
+    <h3>تسجيل افتقاد جديد</h3>
+    <select id="visitType">
+      <option value="مكالمة">مكالمة</option>
+      <option value="زيارة">زيارة</option>
+      <option value="رسالة">رسالة</option>
+    </select>
+    <input type="text" id="visitNotes" placeholder="ملاحظات"/>
+    <button onclick="addVisitation()">حفظ الافتقاد</button>
+  </div>
+</main>
+
+<!-- JsBarcode Library -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script> 
+
+<!-- jsPDF and autoTable for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script> 
+
+<script>
+  const validInviteCode = "BABA123";
+  let currentUser = null;
+  let members = [];
+  let attendance = {};
+  let visitations = {};
+
+  function login() {
+    const code = document.getElementById("inviteCode").value;
+    if (code === validInviteCode) {
+      currentUser = {id: Math.random().toString(36).substr(2, 9), name: "خادم"};
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("homeScreen").classList.remove("hidden");
+      refreshMembers();
+    } else {
+      alert("كود الدعوة غير صحيح");
+    }
+  }
+
+  function logout() {
+    currentUser = null;
+    document.getElementById("homeScreen").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
+  }
+
+  function showSection(id) {
+    document.querySelectorAll("[id]").forEach(el => el.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    if (id === "attendance") loadAttendance();
+    if (id === "members") listMembers();
+  }
+
+  function goHome() {
+    showSection("homeScreen");
+  }
+
+  function saveMember() {
+    const member = {
+      id: Date.now(),
+      name: document.getElementById("fullName").value,
+      gender: document.getElementById("gender").value,
+      phone: document.getElementById("phone").value,
+      address: document.getElementById("address").value,
+      priest: document.getElementById("priest").value,
+      childrenCount: document.getElementById("childrenCount").value,
+      childrenAges: document.getElementById("childrenAges").value,
+      job: document.getElementById("job").value,
+      idNumber: document.getElementById("idNumber").value,
+      preferredVisit: document.getElementById("preferredVisit").value,
+      spouseStatus: document.getElementById("spouseStatus").value,
+      dob: document.getElementById("dob").value,
+      attendances: [],
+      visitations: []
+    };
+    members.push(member);
+    alert("تم حفظ العضو");
+    goHome();
+  }
+
+  function listMembers() {
+    const ul = document.getElementById("memberList");
+    ul.innerHTML = "";
+    members.sort((a, b) => a.name.localeCompare(b.name)).forEach(m => {
+      const li = document.createElement("li");
+      li.textContent = m.name;
+      li.onclick = () => viewMember(m.id);
+      ul.appendChild(li);
+    });
+  }
+
+  function filterMembers() {
+    const term = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = members.filter(m =>
+      m.name.toLowerCase().includes(term) ||
+      m.phone.includes(term) ||
+      m.childrenCount.toString().includes(term)
+    );
+    const ul = document.getElementById("memberList");
+    ul.innerHTML = "";
+    filtered.sort((a, b) => a.name.localeCompare(b.name)).forEach(m => {
+      const li = document.createElement("li");
+      li.textContent = m.name;
+      li.onclick = () => viewMember(m.id);
+      ul.appendChild(li);
+    });
+  }
+
+  function viewMember(id) {
+    const member = members.find(m => m.id === id);
+    document.getElementById("memberName").textContent = member.name;
+    document.getElementById("memberGender").textContent = member.gender;
+    document.getElementById("memberPhone").textContent = member.phone;
+    document.getElementById("memberAddress").textContent = member.address;
+    document.getElementById("memberPriest").textContent = member.priest;
+    document.getElementById("memberChildrenCount").textContent = member.childrenCount;
+    document.getElementById("memberChildrenAges").textContent = member.childrenAges;
+    document.getElementById("memberJob").textContent = member.job;
+    document.getElementById("memberIdNumber").textContent = member.idNumber;
+    document.getElementById("memberPreferredVisit").textContent = member.preferredVisit;
+    document.getElementById("memberSpouseStatus").textContent = member.spouseStatus;
+    document.getElementById("memberDob").textContent = member.dob;
+
+    // Generate Barcode
+    JsBarcode("#memberBarcode", `${member.id}`, {
+      format: "CODE128",
+      lineColor: "#000",
+      width: 2,
+      height: 100,
+      displayValue: true
+    });
+
+    // Load attendance
+    const table = document.getElementById("attendanceLog");
+    table.innerHTML = "<tr><th>التاريخ</th><th>حضور اجتماع</th><th>حضور قداس</th></tr>";
+    member.attendances.forEach(a => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${a.date}</td><td>${a.meeting ? "✅" : "-"}</td><td>${a.mass ? "✅" : "-"}</td>`;
+      table.appendChild(tr);
+    });
+
+    // Load visitations
+    const vtable = document.getElementById("visitationLog");
+    vtable.innerHTML = "<tr><th>التاريخ</th><th>النوع</th><th>الخادم</th><th>الملاحظات</th></tr>";
+    member.visitations.forEach(v => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${v.date}</td><td>${v.type}</td><td>${currentUser.name}</td><td>${v.notes}</td>`;
+      vtable.appendChild(tr);
+    });
+
+    showSection("memberPage");
+  }
+
+  function exportToExcel() {
+    /* Export to Excel */
+    const ws = XLSX.utils.json_to_sheet(members.map(m => ({
+      الاسم: m.name,
+      النوع: m.gender,
+      الهاتف: m.phone,
+      العنوان: m.address,
+      الكاهن: m.priest,
+      "عدد الأطفال": m.childrenCount,
+      "أعمار الأطفال": m.childrenAges,
+      الوظيفة: m.job,
+      الهوية: m.idNumber,
+      "الطريقة المفضلة": m.preferredVisit,
+      "حالة الزوج": m.spouseStatus,
+      "تاريخ الميلاد": m.dob
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "الأعضاء");
+    XLSX.writeFile(wb, "أعضاء_الكنيسة.xlsx");
+  }
+
+  function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const headers = [["الاسم", "النوع", "الهاتف", "العنوان", "الكاهن", "عدد الأطفال", "أعمار الأطفال", "الوظيفة", "الهوية", "الطريقة المفضلة", "حالة الزوج"]];
+    const data = members.map(m => [
+      m.name, m.gender, m.phone, m.address, m.priest, m.childrenCount, m.childrenAges, m.job, m.idNumber, m.preferredVisit, m.spouseStatus
+    ]);
+
+    doc.autoTable({
+      head: headers,
+      body: data,
+      startY: 20,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [52, 73, 94] }
+    });
+
+    doc.setFontSize(16);
+    doc.text("بيانات الأعضاء", 14, 15);
+    doc.save("أعضاء_الكنيسة.pdf");
+  }
+
+  function exportMemberToExcel() {
+    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId);
+    const member = members.find(m => m.id === memberId);
+
+    const ws = XLSX.utils.json_to_sheet([{
+      الاسم: member.name,
+      النوع: member.gender,
+      الهاتف: member.phone,
+      العنوان: member.address,
+      الكاهن: member.priest,
+      "عدد الأطفال": member.childrenCount,
+      "أعمار الأطفال": member.childrenAges,
+      الوظيفة: member.job,
+      الهوية: member.idNumber,
+      "الطريقة المفضلة": member.preferredVisit,
+      "حالة الزوج": member.spouseStatus,
+      "تاريخ الميلاد": member.dob
+    }]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "العضو");
+    XLSX.writeFile(wb, `${member.name}.xlsx`);
+  }
+
+  function exportMemberToPDF() {
+    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId);
+    const member = members.find(m => m.id === memberId);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const headers = [["الاسم", "النوع", "الهاتف", "العنوان", "الكاهن", "عدد الأطفال", "أعمار الأطفال", "الوظيفة", "الهوية", "الطريقة المفضلة", "حالة الزوج"]];
+    const data = [[
+      member.name, member.gender, member.phone, member.address, member.priest, member.childrenCount, member.childrenAges, member.job, member.idNumber, member.preferredVisit, member.spouseStatus
+    ]];
+
+    doc.autoTable({
+      head: headers,
+      body: data,
+      startY: 20,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [52, 73, 94] }
+    });
+
+    doc.setFontSize(16);
+    doc.text(`بيانات ${member.name}`, 14, 15);
+    doc.save(`${member.name}.pdf`);
+  }
+
+  function callMember() {
+    const phone = document.getElementById("memberPhone").textContent;
+    window.location.href = `tel:${phone}`;
+  }
+
+  function whatsappMember() {
+    const phone = document.getElementById("memberPhone").textContent;
+    window.location.href = `https://wa.me/${phone}`; 
+  }
+
+  function addVisitation() {
+    const type = document.getElementById("visitType").value;
+    const notes = document.getElementById("visitNotes").value;
+    const today = new Date().toISOString().split("T")[0];
+    const currentMemberId = parseInt(document.getElementById("memberPage").dataset.memberId);
+
+    const member = members.find(m => m.id === currentMemberId);
+    member.visitations.push({
+      date: today,
+      type,
+      notes,
+      user: currentUser.name
+    });
+
+    alert("تم تسجيل الافتقاد");
+    viewMember(currentMemberId); // Refresh
+  }
+
+  function refreshMembers() {
+    const select = document.getElementById("memberSelect");
+    select.innerHTML = "";
+    members.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m.id;
+      opt.textContent = m.name;
+      select.appendChild(opt);
+    });
+  }
+
+  function loadAttendance() {
+    const table = document.getElementById("membersTable");
+    table.innerHTML = "<tr><th>الاسم</th><th>اجتماع</th><th>قداس</th></tr>";
+    members.forEach(m => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${m.name}</td>
+        <td><input type="checkbox" data-id="${m.id}" data-type="meeting"/></td>
+        <td><input type="checkbox" data-id="${m.id}" data-type="mass"/></td>
+      `;
+      table.appendChild(tr);
+    });
+  }
+
+  function submitAttendance() {
+    const date = document.getElementById("attendanceDate").value;
+    if (!date) return alert("اختر تاريخًا");
+
+    const inputs = document.querySelectorAll("#membersTable input[type='checkbox']");
+    inputs.forEach(cb => {
+      if (cb.checked) {
+        const memberId = parseInt(cb.getAttribute("data-id"));
+        const type = cb.getAttribute("data-type");
+        const member = members.find(m => m.id === memberId);
+        if (!member.attendances.some(a => a.date === date)) {
+          member.attendances.push({date, meeting: false, mass: false});
+        }
+        const record = member.attendances.find(a => a.date === date);
+        if (type === "meeting") record.meeting = true;
+        if (type === "mass") record.mass = true;
+      }
+    });
+    alert("تم تسجيل الحضور");
+    goHome();
+  }
+
+  function generateReport() {
+    const type = document.getElementById("reportType").value;
+    const memberId = document.getElementById("memberSelect").value;
+    const member = members.find(m => m.id.toString() === memberId);
+    const now = new Date();
+    const output = [];
+
+    member.attendances.forEach(a => {
+      const d = new Date(a.date);
+      if ((type === "weekly" && d.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) ||
+          (type === "monthly" && d.getMonth() === now.getMonth())) {
+        output.push(`${a.date} - اجتماع: ${a.meeting ? "✅" : "-"}, قداس: ${a.mass ? "✅" : "-"}`);
+      }
+    });
+
+    document.getElementById("reportOutput").textContent = output.join("\n");
+  }
+</script>
+
+<!-- XLSX Library for Excel Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
+
+</body>
+</html>
