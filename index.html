@@ -4,6 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>اجتماع بابا وماما - كنيسة المرقسية</title>
+
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com  https://cdn.jsdelivr.net;  style-src 'self' 'unsafe-inline';">
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -48,6 +52,9 @@
     }
     .btn-danger {
       background-color: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
     .hidden {
       display: none;
@@ -192,6 +199,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script> 
 
+<!-- XLSX Library for Excel Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
+
 <script>
   const validInviteCode = "BABA123";
   let currentUser = null;
@@ -325,7 +335,6 @@
   }
 
   function exportToExcel() {
-    /* Export to Excel */
     const ws = XLSX.utils.json_to_sheet(members.map(m => ({
       الاسم: m.name,
       النوع: m.gender,
@@ -369,7 +378,7 @@
   }
 
   function exportMemberToExcel() {
-    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId);
+    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId || location.hash.replace("#member-", ""));
     const member = members.find(m => m.id === memberId);
 
     const ws = XLSX.utils.json_to_sheet([{
@@ -392,7 +401,7 @@
   }
 
   function exportMemberToPDF() {
-    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId);
+    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId || location.hash.replace("#member-", ""));
     const member = members.find(m => m.id === memberId);
 
     const { jsPDF } = window.jspdf;
@@ -431,7 +440,7 @@
     const type = document.getElementById("visitType").value;
     const notes = document.getElementById("visitNotes").value;
     const today = new Date().toISOString().split("T")[0];
-    const currentMemberId = parseInt(document.getElementById("memberPage").dataset.memberId);
+    const currentMemberId = parseInt(document.getElementById("memberPage").dataset.memberId || location.hash.replace("#member-", ""));
 
     const member = members.find(m => m.id === currentMemberId);
     member.visitations.push({
@@ -479,50 +488,4 @@
       if (cb.checked) {
         const memberId = parseInt(cb.getAttribute("data-id"));
         const type = cb.getAttribute("data-type");
-        const member = members.find(m => m.id === memberId);
-        if (!member.attendances.some(a => a.date === date)) {
-          member.attendances.push({date, meeting: false, mass: false});
-        }
-        const record = member.attendances.find(a => a.date === date);
-        if (type === "meeting") record.meeting = true;
-        if (type === "mass") record.mass = true;
-      }
-    });
-    alert("تم تسجيل الحضور");
-    goHome();
-  }
-
-  function generateReport() {
-    const type = document.getElementById("reportType").value;
-    const memberId = document.getElementById("memberSelect").value;
-    const member = members.find(m => m.id.toString() === memberId);
-    const now = new Date();
-    const output = [];
-
-    member.attendances.forEach(a => {
-      const d = new Date(a.date);
-      if ((type === "weekly" && d.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) ||
-          (type === "monthly" && d.getMonth() === now.getMonth())) {
-        output.push(`${a.date} - اجتماع: ${a.meeting ? "✅" : "-"}, قداس: ${a.mass ? "✅" : "-"}`);
-      }
-    });
-
-    document.getElementById("reportOutput").textContent = output.join("\n");
-  }
-</script>
-
-<!-- XLSX Library for Excel Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
-  
-<!-- JsBarcode Library -->
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script> 
-
-<!-- jsPDF and autoTable for PDF export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script> 
-
-<!-- XLSX Library for Excel Export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
-  
-</body>
-</html>
+        const
