@@ -76,7 +76,7 @@
   <div id="loginScreen">
     <h2>تسجيل الدخول</h2>
     <input type="text" id="inviteCode" placeholder="أدخل كود الدعوة"/>
-    <button onclick="login()">دخول</button>
+    <button id="loginButton">دخول</button>
   </div>
 
   <!-- Home Screen -->
@@ -107,7 +107,7 @@
     <input type="text" id="job" placeholder="الوظيفة"/>
     <input type="text" id="idNumber" placeholder="رقم الهوية"/>
     <select id="preferredVisit">
-      <option value="">الطريقة المفضلة للافتقاد</option>
+      <option value="">الطريقة المفضلة للافتقار</option>
       <option value="مكالمة">مكالمة</option>
       <option value="زيارة">زيارة</option>
       <option value="لا ارغب">لا أرغب</option>
@@ -179,16 +179,16 @@
     <button onclick="whatsappMember()">واتساب</button>
     <h3>سجل الحضور</h3>
     <table id="attendanceLog"></table>
-    <h3>سجل الافتقاد</h3>
+    <h3>سجل الافتقار</h3>
     <table id="visitationLog"></table>
-    <h3>تسجيل افتقاد جديد</h3>
+    <h3>تسجيل افتقار جديد</h3>
     <select id="visitType">
       <option value="مكالمة">مكالمة</option>
       <option value="زيارة">زيارة</option>
       <option value="رسالة">رسالة</option>
     </select>
     <input type="text" id="visitNotes" placeholder="ملاحظات"/>
-    <button onclick="addVisitation()">حفظ الافتقاد</button>
+    <button onclick="addVisitation()">حفظ الافتقار</button>
   </div>
 </main>
 
@@ -208,6 +208,9 @@
   let members = [];
   let attendance = {};
   let visitations = {};
+
+  // Add Event Listener for Login Button
+  document.getElementById("loginButton").addEventListener("click", login);
 
   function login() {
     const code = document.getElementById("inviteCode").value;
@@ -389,136 +392,4 @@
       الكاهن: member.priest,
       "عدد الأطفال": member.childrenCount,
       "أعمار الأطفال": member.childrenAges,
-      الوظيفة: member.job,
-      الهوية: member.idNumber,
-      "الطريقة المفضلة": member.preferredVisit,
-      "حالة الزوج": member.spouseStatus,
-      "تاريخ الميلاد": member.dob
-    }]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "العضو");
-    XLSX.writeFile(wb, `${member.name}.xlsx`);
-  }
-
-  function exportMemberToPDF() {
-    const memberId = parseInt(document.getElementById("memberPage").dataset.memberId || location.hash.replace("#member-", ""));
-    const member = members.find(m => m.id === memberId);
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const headers = [["الاسم", "النوع", "الهاتف", "العنوان", "الكاهن", "عدد الأطفال", "أعمار الأطفال", "الوظيفة", "الهوية", "الطريقة المفضلة", "حالة الزوج"]];
-    const data = [[
-      member.name, member.gender, member.phone, member.address, member.priest, member.childrenCount, member.childrenAges, member.job, member.idNumber, member.preferredVisit, member.spouseStatus
-    ]];
-
-    doc.autoTable({
-      head: headers,
-      body: data,
-      startY: 20,
-      theme: 'grid',
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [52, 73, 94] }
-    });
-
-    doc.setFontSize(16);
-    doc.text(`بيانات ${member.name}`, 14, 15);
-    doc.save(`${member.name}.pdf`);
-  }
-
-  function callMember() {
-    const phone = document.getElementById("memberPhone").textContent;
-    window.location.href = `tel:${phone}`;
-  }
-
-  function whatsappMember() {
-    const phone = document.getElementById("memberPhone").textContent;
-    window.location.href = `https://wa.me/${phone}`; 
-  }
-
-  function addVisitation() {
-    const type = document.getElementById("visitType").value;
-    const notes = document.getElementById("visitNotes").value;
-    const today = new Date().toISOString().split("T")[0];
-    const currentMemberId = parseInt(document.getElementById("memberPage").dataset.memberId || location.hash.replace("#member-", ""));
-
-    const member = members.find(m => m.id === currentMemberId);
-    member.visitations.push({
-      date: today,
-      type,
-      notes,
-      user: currentUser.name
-    });
-
-    alert("تم تسجيل الافتقاد");
-    viewMember(currentMemberId); // Refresh
-  }
-
-  function refreshMembers() {
-    const select = document.getElementById("memberSelect");
-    select.innerHTML = "";
-    members.forEach(m => {
-      const opt = document.createElement("option");
-      opt.value = m.id;
-      opt.textContent = m.name;
-      select.appendChild(opt);
-    });
-  }
-
-  function loadAttendance() {
-    const table = document.getElementById("membersTable");
-    table.innerHTML = "<tr><th>الاسم</th><th>اجتماع</th><th>قداس</th></tr>";
-    members.forEach(m => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${m.name}</td>
-        <td><input type="checkbox" data-id="${m.id}" data-type="meeting"/></td>
-        <td><input type="checkbox" data-id="${m.id}" data-type="mass"/></td>
-      `;
-      table.appendChild(tr);
-    });
-  }
-
-  function submitAttendance() {
-    const date = document.getElementById("attendanceDate").value;
-    if (!date) return alert("اختر تاريخًا");
-
-    const inputs = document.querySelectorAll("#membersTable input[type='checkbox']");
-    inputs.forEach(cb => {
-      if (cb.checked) {
-        const memberId = parseInt(cb.getAttribute("data-id"));
-        const type = cb.getAttribute("data-type");
-        const member = members.find(m => m.id === memberId);
-        if (!member.attendances.some(a => a.date === date)) {
-          member.attendances.push({date, meeting: false, mass: false});
-        }
-        const record = member.attendances.find(a => a.date === date);
-        if (type === "meeting") record.meeting = true;
-        if (type === "mass") record.mass = true;
-      }
-    });
-    alert("تم تسجيل الحضور");
-    goHome();
-  }
-
-  function generateReport() {
-    const type = document.getElementById("reportType").value;
-    const memberId = document.getElementById("memberSelect").value;
-    const member = members.find(m => m.id.toString() === memberId);
-    const now = new Date();
-    const output = [];
-
-    member.attendances.forEach(a => {
-      const d = new Date(a.date);
-      if ((type === "weekly" && d.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) ||
-          (type === "monthly" && d.getMonth() === now.getMonth())) {
-        output.push(`${a.date} - اجتماع: ${a.meeting ? "✅" : "-"}, قداس: ${a.mass ? "✅" : "-"}`);
-      }
-    });
-
-    document.getElementById("reportOutput").textContent = output.join("\n");
-  }
-</script>
-
-</body>
-</html>
+      الوظيفة: m
