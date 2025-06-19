@@ -488,4 +488,37 @@
       if (cb.checked) {
         const memberId = parseInt(cb.getAttribute("data-id"));
         const type = cb.getAttribute("data-type");
-        const
+        const member = members.find(m => m.id === memberId);
+        if (!member.attendances.some(a => a.date === date)) {
+          member.attendances.push({date, meeting: false, mass: false});
+        }
+        const record = member.attendances.find(a => a.date === date);
+        if (type === "meeting") record.meeting = true;
+        if (type === "mass") record.mass = true;
+      }
+    });
+    alert("تم تسجيل الحضور");
+    goHome();
+  }
+
+  function generateReport() {
+    const type = document.getElementById("reportType").value;
+    const memberId = document.getElementById("memberSelect").value;
+    const member = members.find(m => m.id.toString() === memberId);
+    const now = new Date();
+    const output = [];
+
+    member.attendances.forEach(a => {
+      const d = new Date(a.date);
+      if ((type === "weekly" && d.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) ||
+          (type === "monthly" && d.getMonth() === now.getMonth())) {
+        output.push(`${a.date} - اجتماع: ${a.meeting ? "✅" : "-"}, قداس: ${a.mass ? "✅" : "-"}`);
+      }
+    });
+
+    document.getElementById("reportOutput").textContent = output.join("\n");
+  }
+</script>
+
+</body>
+</html>
