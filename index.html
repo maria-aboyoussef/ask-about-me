@@ -1,1627 +1,947 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:;">
-    <title>اجتماع بابا وماما - كنيسة المرقسية</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
-        
-        :root {
-            --primary: #2c6e49;
-            --secondary: #4c956c;
-            --accent: #fefee3;
-            --light: #d8f3dc;
-            --dark: #1b4332;
-            --gray: #555;
-            --white: #fff;
-            --shadow: 0 4px 12px rgba(0,0,0,0.1);
-            --error: #e74c3c;
-            --warning: #f39c12;
-            --delete: #e74c3c;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
-        
-        /* التصميم المتجاوب */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-        
-        /* شاشة الدخول */
-        .login-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .login-box {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 500px;
-            position: relative;
-        }
-        
-        .app-logo {
-            width: 120px;
-            height: 120px;
-            background: var(--light);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            color: var(--primary);
-            border: 5px solid var(--accent);
-        }
-        
-        h1 {
-            color: var(--primary);
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .app-description {
-            color: var(--gray);
-            margin-bottom: 30px;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
-        .input-group {
-            margin-bottom: 25px;
-            text-align: right;
-            position: relative;
-        }
-        
-        .error-message {
-            color: var(--error);
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input.error {
-            border-color: var(--error);
-        }
-        
-        input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-        
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(44, 110, 73, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        button:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
-        
-        /* رسالة الإرشادات */
-        .instructions {
-            background: var(--accent);
-            border-left: 5px solid var(--primary);
-            padding: 20px;
-            border-radius: 0 10px 10px 0;
-            margin: 30px 0;
-        }
-        
-        .instructions h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .instructions ul {
-            padding-right: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-        
-        /* تنبيهات */
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 5px solid #28a745;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 5px solid #dc3545;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 5px solid var(--warning);
-        }
-        
-        .alert i {
-            font-size: 24px;
-        }
-        
-        .help-box {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            border: 1px dashed var(--primary);
-        }
-        
-        .help-box h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* تصميم متجاوب */
-        @media (max-width: 768px) {
-            .login-box {
-                padding: 30px 20px;
-            }
-        }
-        
-        .reset-btn {
-            background: var(--error);
-            margin-top: 15px;
-        }
-        
-        .reset-btn:hover {
-            background: #c0392b;
-        }
-        
-        /* زر حذف */
-        .delete-btn {
-            background: var(--delete);
-        }
-        
-        .delete-btn:hover {
-            background: #c0392b;
-        }
-        
-        .action-btn.delete {
-            background: #f8d7da;
-            color: var(--delete);
-            border: 1px solid var(--delete);
-        }
-        
-        .action-btn.delete:hover {
-            background: var(--delete);
-            color: white;
-        }
-        
-        /* صفحة تأكيد الحذف */
-        #deleteConfirmation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .confirmation-box {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .confirmation-box h2 {
-            color: var(--delete);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .confirmation-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        .confirmation-buttons button {
-            flex: 1;
-        }
-        
-        /* بطاقات الأعضاء */
-        .members-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-        
-        .member-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s;
-            position: relative;
-        }
-        
-        .member-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .member-header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .member-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--primary);
-        }
-        
-        .member-name {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        
-        .member-type {
-            font-size: 14px;
-            background: rgba(255,255,255,0.2);
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-top: 5px;
-        }
-        
-        .member-body {
-            padding: 20px;
-        }
-        
-        .member-info {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .member-info i {
-            color: var(--primary);
-            font-size: 18px;
-            min-width: 24px;
-            margin-top: 3px;
-        }
-        
-        .member-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .action-btn {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-            background: var(--light);
-            color: var(--dark);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        
-        .action-btn:hover {
-            background: var(--secondary);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* زر إضافة جديد */
-        .add-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 90;
-            transition: all 0.3s;
-        }
-        
-        .add-btn:hover {
-            background: var(--secondary);
-            transform: scale(1.1);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            margin: 30px 0;
-        }
-        
-        .empty-state i {
-            font-size: 60px;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-        
-        .empty-state h3 {
-            color: var(--gray);
-            margin-bottom: 15px;
-        }
-        
-        /* الإحصائيات */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px 20px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s;
-            border-bottom: 4px solid var(--primary);
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-value {
-            font-size: 36px;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            font-size: 16px;
-            color: var(--gray);
-        }
-        
-        /* شريط التنقل */
-        .navbar {
-            background: var(--primary);
-            color: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .app-title {
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .nav-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* صفحات التطبيق */
-        .page {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .active-page {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .section-title {
-            font-size: 24px;
-            color: var(--primary);
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .section-title i {
-            background: var(--light);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-        
-        /* صفحة تسجيل الحضور */
-        .attendance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .attendance-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary);
-        }
-        
-        .attendance-card h3 {
-            color: var(--primary);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .checkbox-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .checkbox-group input {
-            width: 20px;
-            height: 20px;
-        }
-        
-        .checkbox-group label {
-            margin: 0;
-            font-weight: normal;
-        }
-        
-        .attendance-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .attendance-date {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: var(--light);
-            padding: 10px 15px;
-            border-radius: 10px;
-        }
-        
-        .attendance-date input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <!-- شاشة الدخول -->
-    <div id="loginPage" class="login-container">
-        <div class="login-box">
-            <div class="app-logo">
-                <i class="fas fa-church"></i>
-            </div>
-            <h1>اجتماع بابا وماما</h1>
-            <p class="app-description">تطبيق إدارة أعضاء مجموعة "بابا وماما" بكنيسة المرقسية لتسجيل الحضور والافتقاد والبيانات الشخصية</p>
-            
-            <div class="input-group">
-                <label for="inviteCode">كود الدعوة</label>
-                <input type="password" id="inviteCode" placeholder="أدخل كود الدعوة للدخول">
-                <div class="error-message" id="codeError">كود الدعوة غير صحيح. الرجاء المحاولة مرة أخرى.</div>
-            </div>
-            
-            <button id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> دخول إلى التطبيق
-            </button>
-            
-            <div class="help-box">
-                <h3><i class="fas fa-question-circle"></i> مساعدة في الدخول</h3>
-                <p>إذا كنت تواجه مشكلة في الدخول، جرب الحلول التالية:</p>
-                <ul>
-                    <li>تأكد من كتابة الكود بالأحرف الكبيرة: <strong>BABA123</strong></li>
-                    <li>لا تستخدم مسافات قبل أو بعد الكود</li>
-                    <li>إذا نسيت الكود، اضغط على زر إعادة الضبط أدناه</li>
-                    <li>جرب تحديث الصفحة ثم إدخال الكود مرة أخرى</li>
-                </ul>
-            </div>
-            
-            <button class="reset-btn" id="resetBtn">
-                <i class="fas fa-sync-alt"></i> إعادة ضبط حالة الدخول
-            </button>
-        </div>
-    </div>
-    
-    <!-- تأكيد الحذف -->
-    <div id="deleteConfirmation">
-        <div class="confirmation-box">
-            <h2><i class="fas fa-exclamation-triangle"></i> تأكيد الحذف</h2>
-            <p>هل أنت متأكد أنك تريد حذف هذا العضو؟</p>
-            <p><strong id="memberToDelete">[اسم العضو]</strong></p>
-            <p>هذا الإجراء لا يمكن التراجع عنه وسيتم حذف جميع بيانات العضو نهائيًا.</p>
-            
-            <div class="confirmation-buttons">
-                <button id="confirmDeleteBtn" class="delete-btn">
-                    <i class="fas fa-trash"></i> نعم، احذف العضو
-                </button>
-                <button id="cancelDeleteBtn">
-                    <i class="fas fa-times"></i> إلغاء
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- التطبيق الرئيسي (يظهر بعد الدخول) -->
-    <div id="app" style="display: none;">
-        <!-- شريط التنقل -->
-        <nav class="navbar">
-            <div class="container nav-container">
-                <div class="app-title">
-                    <i class="fas fa-church"></i>
-                    <span>اجتماع بابا وماما - كنيسة المرقسية</span>
-                </div>
-                <div class="nav-buttons">
-                    <button class="nav-btn" id="homeBtn" title="الصفحة الرئيسية">
-                        <i class="fas fa-home"></i>
-                    </button>
-                    <button class="nav-btn" id="membersBtn" title="قائمة الأعضاء">
-                        <i class="fas fa-users"></i>
-                    </button>
-                    <button class="nav-btn" id="attendanceBtn" title="تسجيل الحضور">
-                        <i class="fas fa-calendar-check"></i>
-                    </button>
-                    <button class="nav-btn" id="logoutBtn" title="تسجيل الخروج">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
-        
-        <!-- المحتوى الرئيسي -->
-        <div class="container app-content">
-            <!-- الصفحة الرئيسية -->
-            <div id="homePage" class="page active-page">
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong>تم الدخول بنجاح!</strong>
-                        <p>مرحبًا بك في تطبيق إدارة مجموعة بابا وماما</p>
-                    </div>
-                </div>
-                
-                <h2 class="section-title">
-                    <i class="fas fa-home"></i>
-                    الصفحة الرئيسية
-                </h2>
-                
-                <div class="instructions">
-                    <h3><i class="fas fa-info-circle"></i> تعليمات استخدام التطبيق</h3>
-                    <ul>
-                        <li>استخدم قائمة التنقل أعلى الصفحة للوصول إلى الأقسام المختلفة</li>
-                        <li>اضغط على زر (+) لإضافة عضو جديد</li>
-                        <li>استخدم بطاقات الأعضاء للوصول السريع إلى بيانات العضو</li>
-                        <li>استخدم أزرار التصدير لحفظ البيانات بصيغة PDF أو Excel</li>
-                        <li>يمكنك تسجيل الحضور والافتقاد من الصفحات المخصصة</li>
-                    </ul>
-                </div>
-                
-                <div class="help-box">
-                    <h3><i class="fas fa-lightbulb"></i> نصائح للاستخدام</h3>
-                    <p>لتجنب مشاكل الدخول في المستقبل:</p>
-                    <ul>
-                        <li>احفظ كود الدعوة في مكان آمن</li>
-                        <li>لا تمسح بيانات المتصفح (Cookies و LocalStorage)</li>
-                        <li>إذا نسيت الكود، يمكنك إعادة ضبط حالة الدخول من شاشة الدخول</li>
-                        <li>استخدم نفس المتصفح عند كل دخول</li>
-                    </ul>
-                </div>
-                
-                <h2 class="section-title">
-                    <i class="fas fa-chart-line"></i>
-                    إحصائيات التطبيق
-                </h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalMembers">0</div>
-                        <div class="stat-label">إجمالي الأعضاء</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalAttendance">0</div>
-                        <div class="stat-label">حضور الاجتماع</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalVisits">0</div>
-                        <div class="stat-label">زيارات الافتقاد</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value" id="newMembers">0</div>
-                        <div class="stat-label">أعضاء جدد</div>
-                    </div>
-                </div>
-                
-                <h2 class="section-title">
-                    <i class="fas fa-history"></i>
-                    آخر الأنشطة
-                </h2>
-                
-                <table class="data-table" id="recentActivities">
-                    <thead>
-                        <tr>
-                            <th>التاريخ</th>
-                            <th>العضو</th>
-                            <th>النشاط</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم ملؤه ديناميكيًا -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- صفحة الأعضاء -->
-            <div id="membersPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-users"></i>
-                    قائمة الأعضاء
-                </h2>
-                
-                <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 250px;">
-                        <input type="text" id="searchInput" placeholder="ابحث باسم العضو أو رقم الهاتف...">
-                    </div>
-                    <button id="sortMembersBtn" style="width: auto; padding: 0 20px;">
-                        <i class="fas fa-sort-alpha-down"></i> ترتيب أبجدي
-                    </button>
-                </div>
-                
-                <div id="membersList" class="members-grid">
-                    <!-- الأعضاء سيتم إضافتها ديناميكيًا -->
-                </div>
-                
-                <div id="emptyMembers" class="empty-state" style="display: none;">
-                    <i class="fas fa-user-slash"></i>
-                    <h3>لا يوجد أعضاء مسجلين</h3>
-                    <p>لم يتم إضافة أي أعضاء بعد. ابدأ بإضافة عضو جديد باستخدام الزر (+) في الأسفل.</p>
-                    <button id="addFirstMember" style="width: auto; margin-top: 20px;">
-                        <i class="fas fa-user-plus"></i> إضافة أول عضو
-                    </button>
-                </div>
-                
-                <div class="export-buttons">
-                    <button class="export-btn">
-                        <i class="fas fa-file-pdf"></i> تصدير إلى PDF
-                    </button>
-                    <button class="export-btn">
-                        <i class="fas fa-file-excel"></i> تصدير إلى Excel
-                    </button>
-                    <button class="export-btn">
-                        <i class="fas fa-print"></i> طباعة القائمة
-                    </button>
-                </div>
-            </div>
-            
-            <!-- صفحة إضافة عضو جديد -->
-            <div id="addMemberPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-user-plus"></i>
-                    تسجيل عضو جديد
-                </h2>
-                
-                <div class="form-container">
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="fullName">الاسم الكامل</label>
-                            <input type="text" id="fullName" placeholder="الاسم الثلاثي">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="memberType">النوع</label>
-                            <select id="memberType" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
-                                <option value="بابا">بابا</option>
-                                <option value="ماما">ماما</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="phone">رقم الهاتف</label>
-                            <input type="tel" id="phone" placeholder="رقم الهاتف">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="address">العنوان</label>
-                            <input type="text" id="address" placeholder="العنوان بالتفصيل">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="priest">كاهن المنطقة</label>
-                            <input type="text" id="priest" placeholder="اسم الكاهن المسؤول">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="childrenCount">عدد الأطفال</label>
-                            <input type="number" id="childrenCount" placeholder="عدد الأطفال">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="childrenAges">أعمار الأطفال</label>
-                            <input type="text" id="childrenAges" placeholder="أعمار الأطفال مفصولة بفواصل (مثال: 5,8,12)">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="job">الوظيفة</label>
-                            <input type="text" id="job" placeholder="الوظيفة">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="idNumber">رقم الهوية</label>
-                            <input type="text" id="idNumber" placeholder="الرقم القومي">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="preferredContact">الطريقة المفضلة للافتقاد</label>
-                            <select id="preferredContact" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
-                                <option value="مكالمة">مكالمة</option>
-                                <option value="زيارة">زيارة</option>
-                                <option value="لا أرغب">لا أرغب</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="maritalStatus">حالة الزوج/ة</label>
-                            <select id="maritalStatus" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
-                                <option value="موجود">موجود</option>
-                                <option value="مسافر">مسافر</option>
-                                <option value="أرمل">أرمل</option>
-                                <option value="منفصل">منفصل</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="birthdate">تاريخ الميلاد</label>
-                            <input type="date" id="birthdate">
-                        </div>
-                    </div>
-                    
-                    <div class="member-actions" style="margin-top: 20px;">
-                        <button id="saveMemberBtn">
-                            <i class="fas fa-save"></i> حفظ بيانات العضو
-                        </button>
-                        <button id="cancelAddMember" style="background: var(--gray);">
-                            <i class="fas fa-times"></i> إلغاء
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- صفحة تفاصيل العضو -->
-            <div id="memberDetailsPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-user"></i>
-                    تفاصيل العضو
-                </h2>
-                
-                <div class="form-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div id="memberTitle">
-                            <h2 style="color: var(--primary);">ماريان حنا <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">ماما</small></h2>
-                        </div>
-                        <button class="delete-btn" id="deleteMemberBtn">
-                            <i class="fas fa-trash"></i> حذف العضو
-                        </button>
-                    </div>
-                    
-                    <div id="memberDetailsContent">
-                        <!-- سيتم ملؤه ديناميكيًا -->
-                    </div>
-                </div>
-            </div>
-            
-            <!-- صفحة تسجيل الحضور -->
-            <div id="attendancePage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-calendar-check"></i>
-                    تسجيل الحضور
-                </h2>
-                
-                <div class="form-container">
-                    <div class="attendance-date">
-                        <i class="fas fa-calendar-day"></i>
-                        <label for="attendanceDate">تاريخ اليوم:</label>
-                        <input type="date" id="attendanceDate" value="">
-                    </div>
-                    
-                    <h3 style="margin: 20px 0 15px; color: var(--primary);">
-                        <i class="fas fa-users"></i> قائمة الأعضاء
-                    </h3>
-                    
-                    <div id="attendanceList" class="attendance-grid">
-                        <!-- سيتم ملؤه ديناميكيًا -->
-                    </div>
-                    
-                    <div class="attendance-actions">
-                        <button id="saveAttendanceBtn">
-                            <i class="fas fa-save"></i> حفظ الحضور
-                        </button>
-                        <button id="cancelAttendanceBtn" style="background: var(--gray);">
-                            <i class="fas fa-times"></i> إلغاء
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- زر إضافة عضو جديد -->
-        <button class="add-btn" id="addMemberBtn" title="إضافة عضو جديد">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
+import React, { useState, useEffect } from 'react';
+import { Users, Calendar, Phone, MessageSquare, FileText, Search, Plus, LogOut, UserPlus, Settings, Eye, Edit, Trash2, Download } from 'lucide-react';
 
-    <script>
-        // كود الدخول
-        const INVITE_CODE = "BABA123";
+const FellowshipApp = () => {
+  // State management
+  const [currentUser, setCurrentUser] = useState(null);
+  const [servants, setServants] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [followUps, setFollowUps] = useState([]);
+  const [activityLog, setActivityLog] = useState([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterSpouseStatus, setFilterSpouseStatus] = useState('');
+  const [filterVisitType, setFilterVisitType] = useState('');
+
+  // Forms state
+  const [showServantRegister, setShowServantRegister] = useState(false);
+  const [showMemberForm, setShowMemberForm] = useState(false);
+  const [showAttendanceForm, setShowAttendanceForm] = useState(false);
+  const [showFollowUpForm, setShowFollowUpForm] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [editingMember, setEditingMember] = useState(null);
+
+  // Initialize sample data
+  useEffect(() => {
+    if (servants.length === 0) {
+      const sampleServants = [
+        { id: 'SRV001', name: 'Father Michael', phone: '+201234567890', password: 'password123' },
+        { id: 'SRV002', name: 'Deacon John', phone: '+201234567891', password: 'password123' }
+      ];
+      setServants(sampleServants);
+    }
+  }, [servants.length]);
+
+  // Utility functions
+  const generateServantId = () => {
+    const nextNum = servants.length + 1;
+    return `SRV${String(nextNum).padStart(3, '0')}`;
+  };
+
+  const generateMemberId = () => {
+    const nextNum = members.length + 1;
+    return `MBR${String(nextNum).padStart(3, '0')}`;
+  };
+
+  const logActivity = (action, details) => {
+    const newLog = {
+      id: Date.now(),
+      action,
+      details,
+      servantId: currentUser?.id,
+      servantName: currentUser?.name,
+      timestamp: new Date().toISOString()
+    };
+    setActivityLog(prev => [newLog, ...prev]);
+  };
+
+  // Authentication
+  const handleLogin = (servantId, password) => {
+    const servant = servants.find(s => s.id === servantId && s.password === password);
+    if (servant) {
+      setCurrentUser(servant);
+      logActivity('LOGIN', `Servant ${servant.name} logged in`);
+      return true;
+    }
+    return false;
+  };
+
+  const handleLogout = () => {
+    logActivity('LOGOUT', `Servant ${currentUser.name} logged out`);
+    setCurrentUser(null);
+    setActiveTab('dashboard');
+  };
+
+  // Servant registration
+  const handleServantRegister = (formData) => {
+    const newServant = {
+      ...formData,
+      id: generateServantId()
+    };
+    setServants(prev => [...prev, newServant]);
+    logActivity('SERVANT_REGISTER', `New servant registered: ${newServant.name}`);
+    setShowServantRegister(false);
+  };
+
+  // Member management
+  const handleMemberSubmit = (formData) => {
+    if (editingMember) {
+      setMembers(prev => prev.map(m => m.id === editingMember.id ? { ...formData, id: editingMember.id } : m));
+      logActivity('MEMBER_EDIT', `Member updated: ${formData.fullName}`);
+      setEditingMember(null);
+    } else {
+      const newMember = {
+        ...formData,
+        id: generateMemberId(),
+        registeredBy: currentUser.id
+      };
+      setMembers(prev => [...prev, newMember]);
+      logActivity('MEMBER_ADD', `New member added: ${formData.fullName}`);
+    }
+    setShowMemberForm(false);
+  };
+
+  const handleDeleteMember = (memberId) => {
+    const member = members.find(m => m.id === memberId);
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+    logActivity('MEMBER_DELETE', `Member deleted: ${member.fullName}`);
+  };
+
+  // Attendance management
+  const handleAttendanceSubmit = (attendanceData) => {
+    const newAttendance = {
+      ...attendanceData,
+      id: Date.now(),
+      loggedBy: currentUser.id,
+      date: new Date().toISOString().split('T')[0]
+    };
+    setAttendance(prev => [...prev, newAttendance]);
+    logActivity('ATTENDANCE', `Attendance logged for ${attendanceData.eventType}`);
+    setShowAttendanceForm(false);
+  };
+
+  // Follow-up management
+  const handleFollowUpSubmit = (followUpData) => {
+    const newFollowUp = {
+      ...followUpData,
+      id: Date.now(),
+      loggedBy: currentUser.id,
+      date: new Date().toISOString().split('T')[0]
+    };
+    setFollowUps(prev => [...prev, newFollowUp]);
+    logActivity('FOLLOW_UP', `Follow-up logged for member`);
+    setShowFollowUpForm(false);
+    setSelectedMember(null);
+  };
+
+  // WhatsApp integration
+  const openWhatsApp = (phone, message = '') => {
+    const url = `https://wa.me/${phone.replace(/[^0-9]/g, '')}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
+    window.open(url, '_blank');
+  };
+
+  // Filtering and searching
+  const filteredMembers = members.filter(member => {
+    const matchesSearch = member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.phone.includes(searchTerm);
+    const matchesSpouse = !filterSpouseStatus || member.spouseStatus === filterSpouseStatus;
+    const matchesVisit = !filterVisitType || member.preferredVisitType === filterVisitType;
+    return matchesSearch && matchesSpouse && matchesVisit;
+  });
+
+  // Login Component
+  const LoginForm = () => {
+    const [loginData, setLoginData] = useState({ servantId: '', password: '' });
+    const [error, setError] = useState('');
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if (handleLogin(loginData.servantId, loginData.password)) {
+        setError('');
+      } else {
+        setError('Invalid Servant ID or Password');
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-blue-800">Baba & Mama Fellowship</h1>
+            <p className="text-gray-600">St. Mark's Church - Beni Suef</p>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Servant ID</label>
+              <input
+                type="text"
+                value={loginData.servantId}
+                onChange={(e) => setLoginData({...loginData, servantId: e.target.value})}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g., SRV001"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                value={loginData.password}
+                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Login
+            </button>
+          </form>
+          
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setShowServantRegister(true)}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              Register as New Servant
+            </button>
+          </div>
+          
+          <div className="mt-4 p-3 bg-gray-100 rounded text-xs">
+            <p><strong>Demo Login:</strong></p>
+            <p>ID: SRV001, Password: password123</p>
+            <p>ID: SRV002, Password: password123</p>
+          </div>
+        </div>
         
-        // تخزين بيانات الأعضاء
-        let members = JSON.parse(localStorage.getItem('members')) || [];
-        let currentMemberId = null;
-        let activities = JSON.parse(localStorage.getItem('activities')) || [];
-        
-        // عناصر الصفحة
-        const loginPage = document.getElementById('loginPage');
-        const app = document.getElementById('app');
-        const loginBtn = document.getElementById('loginBtn');
-        const inviteCodeInput = document.getElementById('inviteCode');
-        const codeError = document.getElementById('codeError');
-        const resetBtn = document.getElementById('resetBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const addMemberBtn = document.getElementById('addMemberBtn');
-        const homeBtn = document.getElementById('homeBtn');
-        const membersBtn = document.getElementById('membersBtn');
-        const attendanceBtn = document.getElementById('attendanceBtn');
-        const homePage = document.getElementById('homePage');
-        const membersPage = document.getElementById('membersPage');
-        const addMemberPage = document.getElementById('addMemberPage');
-        const memberDetailsPage = document.getElementById('memberDetailsPage');
-        const attendancePage = document.getElementById('attendancePage');
-        const membersList = document.getElementById('membersList');
-        const emptyMembers = document.getElementById('emptyMembers');
-        const deleteConfirmation = document.getElementById('deleteConfirmation');
-        const memberToDelete = document.getElementById('memberToDelete');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const deleteMemberBtn = document.getElementById('deleteMemberBtn');
-        const saveMemberBtn = document.getElementById('saveMemberBtn');
-        const cancelAddMember = document.getElementById('cancelAddMember');
-        const addFirstMember = document.getElementById('addFirstMember');
-        const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
-        const cancelAttendanceBtn = document.getElementById('cancelAttendanceBtn');
-        
-        // الدخول إلى التطبيق
-        loginBtn.addEventListener('click', function() {
-            const enteredCode = inviteCodeInput.value.trim();
+        {showServantRegister && <ServantRegisterModal />}
+      </div>
+    );
+  };
+
+  // Servant Registration Modal
+  const ServantRegisterModal = () => {
+    const [formData, setFormData] = useState({ name: '', phone: '', password: '' });
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      handleServantRegister(formData);
+      setFormData({ name: '', phone: '', password: '' });
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <h2 className="text-xl font-bold mb-4">Register New Servant</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="w-full p-3 border rounded-md"
+              required
+            />
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              className="w-full p-3 border rounded-md"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="w-full p-3 border rounded-md"
+              required
+            />
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-md">
+                Register
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowServantRegister(false)}
+                className="flex-1 bg-gray-500 text-white py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Member Form Modal
+  const MemberFormModal = () => {
+    const [formData, setFormData] = useState(editingMember || {
+      fullName: '', phone: '', dateOfBirth: '', address: '', areaPriest: '',
+      numberOfChildren: '', agesOfChildren: '', hobby: '', preferredVisitType: 'Phone',
+      spouseStatus: 'Present'
+    });
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      handleMemberSubmit(formData);
+      setFormData({
+        fullName: '', phone: '', dateOfBirth: '', address: '', areaPriest: '',
+        numberOfChildren: '', agesOfChildren: '', hobby: '', preferredVisitType: 'Phone',
+        spouseStatus: 'Present'
+      });
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">
+            {editingMember ? 'Edit Member' : 'Add New Member'}
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={formData.fullName}
+                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                className="p-3 border rounded-md"
+                required
+              />
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="p-3 border rounded-md"
+                required
+              />
+              <input
+                type="date"
+                placeholder="Date of Birth"
+                value={formData.dateOfBirth}
+                onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
+                className="p-3 border rounded-md"
+              />
+              <input
+                type="text"
+                placeholder="Area Priest"
+                value={formData.areaPriest}
+                onChange={(e) => setFormData({...formData, areaPriest: e.target.value})}
+                className="p-3 border rounded-md"
+              />
+            </div>
             
-            if(enteredCode === INVITE_CODE) {
-                // حفظ حالة الدخول في localStorage
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('loginCode', enteredCode);
-                
-                // إخفاء شاشة الدخول وإظهار التطبيق
-                loginPage.style.display = 'none';
-                app.style.display = 'block';
-                
-                // إخفاء رسالة الخطأ
-                codeError.style.display = 'none';
-                inviteCodeInput.classList.remove('error');
-                
-                // تحميل الأعضاء
-                loadMembers();
-                
-                // تحديث الإحصائيات
-                updateStatistics();
-            } else {
-                // إظهار رسالة الخطأ
-                codeError.style.display = 'block';
-                inviteCodeInput.classList.add('error');
-                inviteCodeInput.focus();
-                
-                // اهتزاز حقل الإدخال للإشارة إلى الخطأ
-                inviteCodeInput.animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-10px)' },
-                    { transform: 'translateX(10px)' },
-                    { transform: 'translateX(0)' }
-                ], {
-                    duration: 300,
-                    iterations: 2
-                });
-            }
-        });
-        
-        // إعادة ضبط حالة الدخول
-        resetBtn.addEventListener('click', function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('loginCode');
-            inviteCodeInput.value = '';
-            inviteCodeInput.focus();
-            codeError.style.display = 'none';
-            inviteCodeInput.classList.remove('error');
-            alert('تم إعادة ضبط حالة الدخول. يمكنك الآن إدخال الكود الصحيح.');
-        });
-        
-        // تسجيل الخروج
-        logoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('loginCode');
-            app.style.display = 'none';
-            loginPage.style.display = 'flex';
-            inviteCodeInput.value = '';
-            inviteCodeInput.focus();
-            alert('تم تسجيل الخروج بنجاح.');
-        });
-        
-        // تحميل الأعضاء وعرضهم
-        function loadMembers() {
-            members = JSON.parse(localStorage.getItem('members')) || [];
-            membersList.innerHTML = '';
+            <textarea
+              placeholder="Address"
+              value={formData.address}
+              onChange={(e) => setFormData({...formData, address: e.target.value})}
+              className="w-full p-3 border rounded-md"
+              rows="2"
+            />
             
-            if(members.length === 0) {
-                emptyMembers.style.display = 'block';
-                return;
-            }
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="number"
+                placeholder="Number of Children"
+                value={formData.numberOfChildren}
+                onChange={(e) => setFormData({...formData, numberOfChildren: e.target.value})}
+                className="p-3 border rounded-md"
+                min="0"
+              />
+              <input
+                type="text"
+                placeholder="Ages of Children"
+                value={formData.agesOfChildren}
+                onChange={(e) => setFormData({...formData, agesOfChildren: e.target.value})}
+                className="p-3 border rounded-md"
+              />
+            </div>
             
-            emptyMembers.style.display = 'none';
+            <input
+              type="text"
+              placeholder="Hobby"
+              value={formData.hobby}
+              onChange={(e) => setFormData({...formData, hobby: e.target.value})}
+              className="w-full p-3 border rounded-md"
+            />
             
-            members.forEach(member => {
-                const memberCard = document.createElement('div');
-                memberCard.className = 'member-card';
-                memberCard.innerHTML = `
-                    <div class="member-header">
-                        <div class="member-icon">
-                            <i class="fas fa-user"></i>
-                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select
+                value={formData.preferredVisitType}
+                onChange={(e) => setFormData({...formData, preferredVisitType: e.target.value})}
+                className="p-3 border rounded-md"
+              >
+                <option value="Phone">Phone</option>
+                <option value="Visit">Visit</option>
+                <option value="I don't prefer">I don't prefer</option>
+              </select>
+              
+              <select
+                value={formData.spouseStatus}
+                onChange={(e) => setFormData({...formData, spouseStatus: e.target.value})}
+                className="p-3 border rounded-md"
+              >
+                <option value="Present">Present</option>
+                <option value="Abroad">Abroad</option>
+                <option value="Widow">Widow</option>
+                <option value="Divorced">Divorced</option>
+              </select>
+            </div>
+            
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-md">
+                {editingMember ? 'Update Member' : 'Add Member'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMemberForm(false);
+                  setEditingMember(null);
+                }}
+                className="flex-1 bg-gray-500 text-white py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Attendance Form Modal
+  const AttendanceFormModal = () => {
+    const [formData, setFormData] = useState({
+      eventType: 'Friday Meeting',
+      attendees: []
+    });
+
+    const handleMemberToggle = (memberId) => {
+      setFormData(prev => ({
+        ...prev,
+        attendees: prev.attendees.includes(memberId)
+          ? prev.attendees.filter(id => id !== memberId)
+          : [...prev.attendees, memberId]
+      }));
+    };
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      handleAttendanceSubmit(formData);
+      setFormData({ eventType: 'Friday Meeting', attendees: [] });
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">Record Attendance</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <select
+              value={formData.eventType}
+              onChange={(e) => setFormData({...formData, eventType: e.target.value})}
+              className="w-full p-3 border rounded-md"
+            >
+              <option value="Friday Meeting">📅 Friday Meeting</option>
+              <option value="Sunday Liturgy">⛪ Sunday Liturgy</option>
+            </select>
+            
+            <div className="border rounded-md p-4 max-h-60 overflow-y-auto">
+              <h3 className="font-semibold mb-2">Select Attendees:</h3>
+              {members.map(member => (
+                <label key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    checked={formData.attendees.includes(member.id)}
+                    onChange={() => handleMemberToggle(member.id)}
+                    className="rounded"
+                  />
+                  <span>{member.fullName}</span>
+                </label>
+              ))}
+            </div>
+            
+            <p className="text-sm text-gray-600">
+              Selected: {formData.attendees.length} members
+            </p>
+            
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-md">
+                Record Attendance
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAttendanceForm(false)}
+                className="flex-1 bg-gray-500 text-white py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Follow-up Form Modal
+  const FollowUpFormModal = () => {
+    const [formData, setFormData] = useState({
+      memberId: selectedMember?.id || '',
+      interactionType: 'Call',
+      notes: ''
+    });
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      handleFollowUpSubmit(formData);
+      setFormData({ memberId: '', interactionType: 'Call', notes: '' });
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <h2 className="text-xl font-bold mb-4">Log Follow-up</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <select
+              value={formData.memberId}
+              onChange={(e) => setFormData({...formData, memberId: e.target.value})}
+              className="w-full p-3 border rounded-md"
+              required
+            >
+              <option value="">Select Member</option>
+              {members.map(member => (
+                <option key={member.id} value={member.id}>{member.fullName}</option>
+              ))}
+            </select>
+            
+            <select
+              value={formData.interactionType}
+              onChange={(e) => setFormData({...formData, interactionType: e.target.value})}
+              className="w-full p-3 border rounded-md"
+            >
+              <option value="Call">📞 Call</option>
+              <option value="Visit">🏠 Visit</option>
+              <option value="Message">💬 Message</option>
+            </select>
+            
+            <textarea
+              placeholder="Notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              className="w-full p-3 border rounded-md"
+              rows="3"
+              required
+            />
+            
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-md">
+                Log Follow-up
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowFollowUpForm(false);
+                  setSelectedMember(null);
+                }}
+                className="flex-1 bg-gray-500 text-white py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Main Dashboard
+  const Dashboard = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-blue-100 p-6 rounded-lg">
+          <h3 className="text-blue-800 font-semibold">Total Members</h3>
+          <p className="text-3xl font-bold text-blue-900">{members.length}</p>
+        </div>
+        <div className="bg-green-100 p-6 rounded-lg">
+          <h3 className="text-green-800 font-semibold">Active Servants</h3>
+          <p className="text-3xl font-bold text-green-900">{servants.length}</p>
+        </div>
+        <div className="bg-purple-100 p-6 rounded-lg">
+          <h3 className="text-purple-800 font-semibold">This Week's Attendance</h3>
+          <p className="text-3xl font-bold text-purple-900">{attendance.length}</p>
+        </div>
+        <div className="bg-orange-100 p-6 rounded-lg">
+          <h3 className="text-orange-800 font-semibold">Follow-ups</h3>
+          <p className="text-3xl font-bold text-orange-900">{followUps.length}</p>
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+        <div className="space-y-2">
+          {activityLog.slice(0, 5).map(log => (
+            <div key={log.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+              <div>
+                <span className="font-medium">{log.action}</span>
+                <p className="text-sm text-gray-600">{log.details}</p>
+              </div>
+              <div className="text-xs text-gray-500">
+                <p>{log.servantName}</p>
+                <p>{new Date(log.timestamp).toLocaleString()}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Members List
+  const MembersList = () => (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-4 items-center justify-between">
+        <div className="flex flex-wrap gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search members..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border rounded-md"
+            />
+          </div>
+          <select
+            value={filterSpouseStatus}
+            onChange={(e) => setFilterSpouseStatus(e.target.value)}
+            className="px-4 py-2 border rounded-md"
+          >
+            <option value="">All Spouse Status</option>
+            <option value="Present">Present</option>
+            <option value="Abroad">Abroad</option>
+            <option value="Widow">Widow</option>
+            <option value="Divorced">Divorced</option>
+          </select>
+          <select
+            value={filterVisitType}
+            onChange={(e) => setFilterVisitType(e.target.value)}
+            className="px-4 py-2 border rounded-md"
+          >
+            <option value="">All Visit Types</option>
+            <option value="Phone">Phone</option>
+            <option value="Visit">Visit</option>
+            <option value="I don't prefer">I don't prefer</option>
+          </select>
+        </div>
+        <button
+          onClick={() => setShowMemberForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+        >
+          <UserPlus className="h-4 w-4" />
+          Add Member
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredMembers.map(member => (
+          <div key={member.id} className="bg-white border rounded-lg p-4 shadow-sm">
+            <div className="flex justify-between items-start mb-3">
+              <h3 className="font-semibold text-lg">{member.fullName}</h3>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => {
+                    setEditingMember(member);
+                    setShowMemberForm(true);
+                  }}
+                  className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteMember(member.id)}
+                  className="p-1 text-red-600 hover:bg-red-50 rounded"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <p><strong>Phone:</strong> {member.phone}</p>
+              <p><strong>DOB:</strong> {member.dateOfBirth}</p>
+              <p><strong>Address:</strong> {member.address}</p>
+              <p><strong>Priest:</strong> {member.areaPriest}</p>
+              <p><strong>Children:</strong> {member.numberOfChildren} ({member.agesOfChildren})</p>
+              <p><strong>Hobby:</strong> {member.hobby}</p>
+              <p><strong>Visit Preference:</strong> {member.preferredVisitType}</p>
+              <p><strong>Spouse Status:</strong> {member.spouseStatus}</p>
+            </div>
+            
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => openWhatsApp(member.phone)}
+                className="flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm hover:bg-green-700"
+              >
+                WhatsApp
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedMember(member);
+                  setShowFollowUpForm(true);
+                }}
+                className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700"
+              >
+                Follow-up
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Reports
+  const Reports = () => {
+    const generateReport = () => {
+      const reportData = {
+        totalMembers: members.length,
+        totalAttendance: attendance.length,
+        followUpsCount: followUps.length,
+        generatedBy: currentUser.name,
+        generatedAt: new Date().toISOString()
+      };
+      
+      const reportText = `
+Fellowship Report - ${new Date().toLocaleDateString()}
+Generated by: ${reportData.generatedBy}
+
+Summary:
+- Total Members: ${reportData.totalMembers}
+- Total Attendance Records: ${reportData.totalAttendance}
+- Total Follow-ups: ${reportData.followUpsCount}
+
+Member Details:
+${members.map(member => `- ${member.fullName} (${member.phone})`).join('\n')}
+      `;
+      
+      const blob = new Blob([reportText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fellowship-report-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      logActivity('REPORT_GENERATED', 'Fellowship report downloaded');
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-4">Generate Reports</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">Attendance Summary</h4>
+              <p className="text-sm text-gray-600 mb-4">
+                Total attendance records: {attendance.length}
+              </p>
+              <button
+                onClick={generateReport}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download Report
+              </button>
+            </div>
+            
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">Member Statistics</h4>
+              <div className="space-y-2 text-sm">
+                <p>Total Members: {members.length}</p>
+                <p>Phone Preferred: {members.filter(m => m.preferredVisitType === 'Phone').length}</p>
+                <p>Visit Preferred: {members.filter(m => m.preferredVisitType === 'Visit').length}</p>
+                <p>No Preference: {members.filter(m => m.preferredVisitType === 'I don\'t prefer').length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-4">Activity Log</h3>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {activityLog.map(log => (
+              <div key={log.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div>
+                  <span className="font-medium">{log.action}</span>
+                  <p className="text-sm text-gray-600">{log.details}</p>
+                </div>
+                <div className="text-xs text-gray-500">
+                  <p>{log.servantName}</p>
+                  <p>{new Date(log.timestamp).toLocaleString()}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Main App Component
+  if (!currentUser) {
+    return <LoginForm />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-blue-800 text-white p-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold">Baba & Mama Fellowship</h1>
+            <p className="text-sm opacity-90">St. Mark's Church - Beni Suef</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="font-medium">{currentUser.name}</p>
+              <p className="text-sm opacity-75">ID: {currentUser.id}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="px-4 py-3">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: Users },
+              { id: 'members', label: 'Members', icon: Users },
+              { id: 'attendance', label: 'Attendance', icon: Calendar },
+              { id: 'followup', label: 'Follow-up', icon: MessageSquare },
+              { id: 'reports', label: 'Reports', icon: FileText }
+            ].map(tab => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="p-6">
+        {activeTab === 'dashboard' && <Dashboard />}
+        {activeTab === 'members' && <MembersList />}
+        {activeTab === 'attendance' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Attendance Management</h2>
+              <button
+                onClick={() => setShowAttendanceForm(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Record Attendance
+              </button>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Recent Attendance</h3>
+                <div className="space-y-3">
+                  {attendance.map(record => (
+                    <div key={record.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                      <div>
+                        <span className="font-medium">{record.eventType}</span>
+                        <p className="text-sm text-gray-600">
+                          {record.attendees.length} attendees on {record.date}
+                        </p>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Logged by: {servants.find(s => s.id === record.loggedBy)?.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === 'followup' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Follow-up Management</h2>
+              <button
+                onClick={() => setShowFollowUpForm(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Log Follow-up
+              </button>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Recent Follow-ups</h3>
+                <div className="space-y-3">
+                  {followUps.map(followUp => {
+                    const member = members.find(m => m.id === followUp.memberId);
+                    return (
+                      <div key={followUp.id} className="flex justify-between items-start p-3 bg-gray-50 rounded">
                         <div>
-                            <div class="member-name">${member.fullName}</div>
-                            <div class="member-type">${member.memberType}</div>
+                          <span className="font-medium">{member?.fullName}</span>
+                          <p className="text-sm text-gray-600">
+                            {followUp.interactionType} on {followUp.date}
+                          </p>
+                          <p className="text-sm text-gray-700 mt-1">{followUp.notes}</p>
                         </div>
-                    </div>
-                    <div class="member-body">
-                        <div class="member-info">
-                            <i class="fas fa-phone"></i>
-                            <span>${member.phone}</span>
+                        <div className="text-xs text-gray-500">
+                          By: {servants.find(s => s.id === followUp.loggedBy)?.name}
                         </div>
-                        <div class="member-info">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${member.address.substring(0, 20)}${member.address.length > 20 ? '...' : ''}</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-child"></i>
-                            <span>${member.childrenCount} أطفال (${member.childrenAges})</span>
-                        </div>
-                        
-                        <div class="member-actions">
-                            <button class="action-btn view-member" data-id="${member.id}">
-                                <i class="fas fa-eye"></i> تفاصيل
-                            </button>
-                            <button class="action-btn delete delete-member" data-id="${member.id}">
-                                <i class="fas fa-trash"></i> حذف
-                            </button>
-                        </div>
-                    </div>
-                `;
-                membersList.appendChild(memberCard);
-            });
-            
-            // إضافة مستمعات الأحداث للأزرار الجديدة
-            document.querySelectorAll('.view-member').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const memberId = this.getAttribute('data-id');
-                    showMemberDetails(memberId);
-                });
-            });
-            
-            document.querySelectorAll('.delete-member').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const memberId = this.getAttribute('data-id');
-                    const member = members.find(m => m.id == memberId);
-                    showDeleteConfirmation(member);
-                });
-            });
-        }
-        
-        // عرض تفاصيل العضو
-        function showMemberDetails(memberId) {
-            const member = members.find(m => m.id == memberId);
-            if(!member) return;
-            
-            currentMemberId = memberId;
-            
-            document.getElementById('memberTitle').innerHTML = `
-                <h2 style="color: var(--primary);">${member.fullName} <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">${member.memberType}</small></h2>
-            `;
-            
-            document.getElementById('memberDetailsContent').innerHTML = `
-                <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 30px;">
-                    <div style="flex: 1; min-width: 300px;">
-                        <div class="member-info">
-                            <strong>الاسم الكامل:</strong> ${member.fullName}
-                        </div>
-                        <div class="member-info">
-                            <strong>النوع:</strong> ${member.memberType}
-                        </div>
-                        <div class="member-info">
-                            <strong>رقم الهاتف:</strong> ${member.phone}
-                        </div>
-                        <div class="member-info">
-                            <strong>العنوان:</strong> ${member.address}
-                        </div>
-                        <div class="member-info">
-                            <strong>كاهن المنطقة:</strong> ${member.priest}
-                        </div>
-                        <div class="member-info">
-                            <strong>عدد الأطفال:</strong> ${member.childrenCount}
-                        </div>
-                        <div class="member-info">
-                            <strong>أعمار الأطفال:</strong> ${member.childrenAges}
-                        </div>
-                    </div>
-                    
-                    <div style="flex: 1; min-width: 300px;">
-                        <div class="member-info">
-                            <strong>الوظيفة:</strong> ${member.job}
-                        </div>
-                        <div class="member-info">
-                            <strong>رقم الهوية:</strong> ${member.idNumber}
-                        </div>
-                        <div class="member-info">
-                            <strong>الطريقة المفضلة للافتقاد:</strong> ${member.preferredContact}
-                        </div>
-                        <div class="member-info">
-                            <strong>حالة الزوج/ة:</strong> ${member.maritalStatus}
-                        </div>
-                        <div class="member-info">
-                            <strong>تاريخ الميلاد:</strong> ${member.birthdate}
-                        </div>
-                        <div class="member-info">
-                            <strong>تاريخ التسجيل:</strong> ${member.registrationDate}
-                        </div>
-                        
-                        <div class="member-actions" style="margin-top: 20px;">
-                            <button class="action-btn call-member" data-phone="${member.phone}" style="background: var(--primary); color: white;">
-                                <i class="fas fa-phone"></i> الاتصال
-                            </button>
-                            <button class="action-btn whatsapp-member" data-phone="${member.phone}" style="background: #25D366; color: white;">
-                                <i class="fab fa-whatsapp"></i> واتساب
-                            </button>
-                        </div>
-                    </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                
-                <div class="barcode-container">
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">باركود العضو</h3>
-                    <svg id="memberBarcode"></svg>
-                </div>
-            `;
-            
-            // إنشاء الباركود
-            JsBarcode("#memberBarcode", `MEM${member.id}`, {
-                format: "CODE128",
-                displayValue: true,
-                fontSize: 16,
-                height: 50
-            });
-            
-            // إضافة مستمعات الأحداث لأزرار الاتصال
-            document.querySelectorAll('.call-member').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const phone = this.getAttribute('data-phone');
-                    window.location.href = `tel:${phone}`;
-                });
-            });
-            
-            document.querySelectorAll('.whatsapp-member').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const phone = this.getAttribute('data-phone');
-                    window.open(`https://wa.me/${phone}`, '_blank');
-                });
-            });
-            
-            // إظهار صفحة التفاصيل وإخفاء الصفحات الأخرى
-            showPage(memberDetailsPage);
-        }
-        
-        // إظهار تأكيد الحذف
-        function showDeleteConfirmation(member) {
-            memberToDelete.textContent = member.fullName;
-            deleteConfirmation.style.display = 'flex';
-            currentMemberId = member.id;
-        }
-        
-        // تأكيد الحذف
-        confirmDeleteBtn.addEventListener('click', function() {
-            if(currentMemberId) {
-                // حذف العضو من المصفوفة
-                const memberName = members.find(m => m.id == currentMemberId).fullName;
-                members = members.filter(member => member.id != currentMemberId);
-                
-                // تحديث التخزين المحلي
-                localStorage.setItem('members', JSON.stringify(members));
-                
-                // إخفاء نافذة التأكيد
-                deleteConfirmation.style.display = 'none';
-                
-                // إضافة نشاط
-                addActivity(`حذف العضو: ${memberName}`);
-                
-                // إظهار رسالة نجاح
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-success';
-                alert.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong>تم حذف العضو بنجاح!</strong>
-                        <p>تم حذف بيانات العضو نهائيًا من النظام.</p>
-                    </div>
-                `;
-                document.querySelector('.app-content').prepend(alert);
-                
-                // إخفاء الرسالة بعد 3 ثوان
-                setTimeout(() => {
-                    alert.remove();
-                }, 3000);
-                
-                // تحديث قائمة الأعضاء
-                loadMembers();
-                
-                // تحديث الإحصائيات
-                updateStatistics();
-                
-                // العودة للصفحة الرئيسية
-                showPage(homePage);
-            }
-        });
-        
-        // إلغاء الحذف
-        cancelDeleteBtn.addEventListener('click', function() {
-            deleteConfirmation.style.display = 'none';
-            currentMemberId = null;
-        });
-        
-        // حذف العضو من صفحة التفاصيل
-        deleteMemberBtn.addEventListener('click', function() {
-            if(currentMemberId) {
-                const member = members.find(m => m.id == currentMemberId);
-                if(member) showDeleteConfirmation(member);
-            }
-        });
-        
-        // فتح صفحة إضافة عضو جديد
-        addMemberBtn.addEventListener('click', function() {
-            showPage(addMemberPage);
-        });
-        
-        // إضافة أول عضو
-        addFirstMember.addEventListener('click', function() {
-            showPage(addMemberPage);
-        });
-        
-        // إلغاء إضافة عضو
-        cancelAddMember.addEventListener('click', function() {
-            showPage(homePage);
-        });
-        
-        // حفظ العضو الجديد
-        saveMemberBtn.addEventListener('click', function() {
-            // إنشاء كائن العضو الجديد
-            const newMember = {
-                id: Date.now(), // استخدام الطوابع الزمنية كمعرف فريد
-                fullName: document.getElementById('fullName').value,
-                memberType: document.getElementById('memberType').value,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                priest: document.getElementById('priest').value,
-                childrenCount: document.getElementById('childrenCount').value,
-                childrenAges: document.getElementById('childrenAges').value,
-                job: document.getElementById('job').value,
-                idNumber: document.getElementById('idNumber').value,
-                preferredContact: document.getElementById('preferredContact').value,
-                maritalStatus: document.getElementById('maritalStatus').value,
-                birthdate: document.getElementById('birthdate').value,
-                registrationDate: new Date().toLocaleDateString('ar-EG'),
-                attendances: [],
-                visits: []
-            };
-            
-            // إضافة العضو الجديد إلى المصفوفة
-            members.push(newMember);
-            
-            // حفظ في التخزين المحلي
-            localStorage.setItem('members', JSON.stringify(members));
-            
-            // رسالة نجاح
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <strong>تم إضافة العضو بنجاح!</strong>
-                    <p>تم حفظ بيانات العضو ${newMember.fullName} في النظام.</p>
-                </div>
-            `;
-            document.querySelector('.app-content').prepend(alert);
-            
-            // إضافة نشاط
-            addActivity(`إضافة عضو جديد: ${newMember.fullName}`);
-            
-            // إخفاء الرسالة بعد 3 ثوان
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-            
-            // تحديث القائمة
-            loadMembers();
-            
-            // تحديث الإحصائيات
-            updateStatistics();
-            
-            // إعادة تعيين النموذج
-            document.getElementById('fullName').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('address').value = '';
-            document.getElementById('priest').value = '';
-            document.getElementById('childrenCount').value = '';
-            document.getElementById('childrenAges').value = '';
-            document.getElementById('job').value = '';
-            document.getElementById('idNumber').value = '';
-            document.getElementById('birthdate').value = '';
-            
-            // العودة للصفحة الرئيسية
-            showPage(homePage);
-        });
-        
-        // فتح صفحة تسجيل الحضور
-        attendanceBtn.addEventListener('click', function() {
-            // تعيين تاريخ اليوم كقيمة افتراضية
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('attendanceDate').value = formattedDate;
-            
-            // تحميل الأعضاء لتسجيل الحضور
-            loadAttendanceList();
-            showPage(attendancePage);
-        });
-        
-        // تحميل قائمة الأعضاء لتسجيل الحضور
-        function loadAttendanceList() {
-            const attendanceList = document.getElementById('attendanceList');
-            attendanceList.innerHTML = '';
-            
-            if(members.length === 0) {
-                attendanceList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-user-slash"></i>
-                        <h3>لا يوجد أعضاء مسجلين</h3>
-                        <p>لم يتم إضافة أي أعضاء بعد. ابدأ بإضافة عضو جديد.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            members.forEach(member => {
-                const attendanceCard = document.createElement('div');
-                attendanceCard.className = 'attendance-card';
-                attendanceCard.innerHTML = `
-                    <h3><i class="fas fa-user"></i> ${member.fullName}</h3>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="meeting_${member.id}" class="attendance-checkbox">
-                        <label for="meeting_${member.id}">حضور الاجتماع</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="mass_${member.id}" class="attendance-checkbox">
-                        <label for="mass_${member.id}">حضور القداس</label>
-                    </div>
-                `;
-                attendanceList.appendChild(attendanceCard);
-            });
-        }
-        
-        // حفظ الحضور
-        saveAttendanceBtn.addEventListener('click', function() {
-            const attendanceDate = document.getElementById('attendanceDate').value;
-            const today = new Date(attendanceDate).toLocaleDateString('ar-EG');
-            
-            members.forEach(member => {
-                const meetingCheckbox = document.getElementById(`meeting_${member.id}`);
-                const massCheckbox = document.getElementById(`mass_${member.id}`);
-                
-                if(meetingCheckbox.checked || massCheckbox.checked) {
-                    member.attendances.push({
-                        date: today,
-                        meeting: meetingCheckbox.checked,
-                        mass: massCheckbox.checked
-                    });
-                    
-                    // إضافة نشاط
-                    addActivity(`تسجيل حضور لـ ${member.fullName}`);
-                }
-            });
-            
-            // حفظ التحديثات
-            localStorage.setItem('members', JSON.stringify(members));
-            
-            // رسالة نجاح
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <strong>تم تسجيل الحضور بنجاح!</strong>
-                    <p>تم حفظ بيانات الحضور لجميع الأعضاء المحددين.</p>
-                </div>
-            `;
-            document.querySelector('.app-content').prepend(alert);
-            
-            // إخفاء الرسالة بعد 3 ثوان
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-            
-            // تحديث الإحصائيات
-            updateStatistics();
-            
-            // العودة للصفحة الرئيسية
-            showPage(homePage);
-        });
-        
-        // إلغاء تسجيل الحضور
-        cancelAttendanceBtn.addEventListener('click', function() {
-            showPage(homePage);
-        });
-        
-        // إضافة نشاط
-        function addActivity(description) {
-            const today = new Date().toLocaleDateString('ar-EG');
-            activities.unshift({
-                date: today,
-                description: description
-            });
-            
-            // حفظ النشاطات
-            localStorage.setItem('activities', JSON.stringify(activities));
-            
-            // تحديث النشاطات الأخيرة
-            updateRecentActivities();
-        }
-        
-        // تحديث النشاطات الأخيرة
-        function updateRecentActivities() {
-            const activitiesBody = document.querySelector('#recentActivities tbody');
-            activitiesBody.innerHTML = '';
-            
-            // عرض آخر 5 نشاطات
-            const recentActivities = activities.slice(0, 5);
-            
-            recentActivities.forEach(activity => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${activity.date}</td>
-                    <td>${activity.description.split(':')[0]}</td>
-                    <td>${activity.description}</td>
-                `;
-                activitiesBody.appendChild(row);
-            });
-        }
-        
-        // تحديث الإحصائيات
-        function updateStatistics() {
-            // إجمالي الأعضاء
-            document.getElementById('totalMembers').textContent = members.length;
-            
-            // حضور الاجتماع
-            const totalAttendance = members.reduce((acc, member) => {
-                return acc + member.attendances.length;
-            }, 0);
-            document.getElementById('totalAttendance').textContent = totalAttendance;
-            
-            // زيارات الافتقاد
-            const totalVisits = members.reduce((acc, member) => {
-                return acc + member.visits.length;
-            }, 0);
-            document.getElementById('totalVisits').textContent = totalVisits;
-            
-            // أعضاء جدد (تم إضافتهم خلال آخر 7 أيام)
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            
-            const newMembersCount = members.filter(member => {
-                const regDate = new Date(member.registrationDate);
-                return regDate > oneWeekAgo;
-            }).length;
-            
-            document.getElementById('newMembers').textContent = newMembersCount;
-        }
-        
-        // التنقل بين الصفحات
-        function showPage(page) {
-            // إخفاء جميع الصفحات
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            
-            // إظهار الصفحة المطلوبة
-            page.style.display = 'block';
-        }
-        
-        // أحداث التنقل
-        homeBtn.addEventListener('click', () => showPage(homePage));
-        membersBtn.addEventListener('click', () => showPage(membersPage));
-        
-        // التحقق من حالة الدخول عند تحميل الصفحة
-        window.addEventListener('DOMContentLoaded', function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const savedCode = localStorage.getItem('loginCode');
-            
-            if(isLoggedIn === 'true' && savedCode === INVITE_CODE) {
-                loginPage.style.display = 'none';
-                app.style.display = 'block';
-                loadMembers();
-                updateStatistics();
-                updateRecentActivities();
-            }
-            
-            // تعيين تاريخ اليوم كقيمة افتراضية في نموذج الحضور
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('attendanceDate').value = formattedDate;
-        });
-    </script>
-</body>
-</html>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === 'reports' && <Reports />}
+      </main>
+
+      {/* Modals */}
+      {showMemberForm && <MemberFormModal />}
+      {showAttendanceForm && <AttendanceFormModal />}
+      {showFollowUpForm && <FollowUpFormModal />}
+    </div>
+  );
+};
+
+export default FellowshipApp;
