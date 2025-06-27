@@ -329,6 +329,16 @@
             color: white;
         }
         
+        .action-btn.edit {
+            background: rgba(243, 156, 18, 0.2);
+            color: #e67e22;
+        }
+        
+        .action-btn.edit:hover {
+            background: #e67e22;
+            color: white;
+        }
+        
         @media (max-width: 768px) {
             .login-box {
                 padding: 30px 20px;
@@ -895,6 +905,13 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -936,14 +953,9 @@
                 <ul>
                     <li>تأكد من كتابة الكود بالأحرف الكبيرة: <strong>BABA123</strong> للمسؤول</li>
                     <li>الخدام يدخلون برقم الهاتف وكلمة المرور</li>
-                    <li>إذا نسيت الكود، اضغط على زر إعادة الضبط أدناه</li>
-                    <li>جرب تحديث الصفحة ثم إدخال البيانات مرة أخرى</li>
+                    <li>إذا نسيت الكود، اتصل بالمسؤول لتغيير كلمة المرور</li>
                 </ul>
             </div>
-            
-            <button class="reset-btn" id="resetBtn">
-                <i class="fas fa-sync-alt"></i> إعادة ضبط حالة الدخول
-            </button>
         </div>
     </div>
     
@@ -1023,6 +1035,39 @@
         </div>
     </div>
     
+    <!-- نافذة تغيير كلمة مرور المسؤول -->
+    <div id="adminSettingsModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-lock"></i> تغيير كلمة مرور المسؤول</h2>
+            
+            <div class="input-group">
+                <label for="currentPassword">كلمة المرور الحالية</label>
+                <input type="password" id="currentPassword" placeholder="أدخل كلمة المرور الحالية">
+            </div>
+            
+            <div class="input-group">
+                <label for="newPassword">كلمة المرور الجديدة</label>
+                <input type="password" id="newPassword" placeholder="أدخل كلمة المرور الجديدة">
+            </div>
+            
+            <div class="input-group">
+                <label for="confirmNewPassword">تأكيد كلمة المرور الجديدة</label>
+                <input type="password" id="confirmNewPassword" placeholder="تأكيد كلمة المرور الجديدة">
+            </div>
+            
+            <div class="error-message" id="adminSettingsError"></div>
+            
+            <div class="confirmation-buttons">
+                <button id="saveAdminPasswordBtn">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+                <button id="cancelAdminSettingsBtn">
+                    <i class="fas fa-times"></i> إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- التطبيق الرئيسي (يظهر بعد الدخول) -->
     <div id="app" style="display: none;">
         <!-- شريط التنقل -->
@@ -1045,8 +1090,11 @@
                     <button class="nav-btn" id="reportsBtn" title="التقارير">
                         <i class="fas fa-chart-bar"></i>
                     </button>
-                    <button class="nav-btn" id="servantsBtn" title="إدارة الخدام">
+                    <button class="nav-btn" id="servantsBtn" title="إدارة الخدام" style="display: none;">
                         <i class="fas fa-user-friends"></i>
+                    </button>
+                    <button class="nav-btn" id="adminSettingsBtn" title="إعدادات المسؤول" style="display: none;">
+                        <i class="fas fa-cog"></i>
                     </button>
                     <button class="nav-btn" id="logoutBtn" title="تسجيل الخروج">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1265,7 +1313,7 @@
                         <div id="memberTitle">
                             <h2 style="color: var(--primary);">ماريان حنا <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">ماما</small></h2>
                         </div>
-                        <button class="delete-btn" id="deleteMemberBtn">
+                        <button class="delete-btn" id="deleteMemberBtn" style="display: none;">
                             <i class="fas fa-trash"></i> حذف العضو
                         </button>
                     </div>
@@ -1289,8 +1337,22 @@
                         </div>
                         
                         <div class="notes-container">
-                            <h4><i class="fas fa-sticky-note"></i> ملاحظات خاصة</h4>
-                            <p id="memberNotes">هذا العضو يفضل الاتصال به بعد الساعة 8 مساءً. لديه طفل يعاني من حساسية تجاه بعض الأطعمة.</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4><i class="fas fa-sticky-note"></i> ملاحظات خاصة</h4>
+                                <button class="action-btn edit" id="editNotesBtn">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </button>
+                            </div>
+                            <p id="memberNotesText">هذا العضو يفضل الاتصال به بعد الساعة 8 مساءً. لديه طفل يعاني من حساسية تجاه بعض الأطعمة.</p>
+                            <textarea id="memberNotesEdit" style="display: none; width: 100%; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 16px;"></textarea>
+                            <div id="notesActions" style="display: none; margin-top: 10px;">
+                                <button id="saveNotesBtn" class="action-btn">
+                                    <i class="fas fa-save"></i> حفظ
+                                </button>
+                                <button id="cancelNotesBtn" class="action-btn" style="background: var(--gray);">
+                                    <i class="fas fa-times"></i> إلغاء
+                                </button>
+                            </div>
                         </div>
                         
                         <h3 style="margin: 20px 0 15px; color: var(--primary);">
@@ -1458,6 +1520,66 @@
                 </div>
             </div>
             
+            <!-- صفحة إعدادات المسؤول -->
+            <div id="adminSettingsPage" class="page">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    إعدادات المسؤول
+                </h2>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> معلومات هامة</h3>
+                    <p>في هذه الصفحة يمكنك تغيير كلمة مرور المسؤول وإدارة إعدادات النظام.</p>
+                </div>
+                
+                <div class="report-container">
+                    <h3 class="section-title">
+                        <i class="fas fa-lock"></i>
+                        تغيير كلمة المرور
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label for="currentAdminPassword">كلمة المرور الحالية</label>
+                        <input type="password" id="currentAdminPassword" placeholder="أدخل كلمة المرور الحالية">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="newAdminPassword">كلمة المرور الجديدة</label>
+                        <input type="password" id="newAdminPassword" placeholder="أدخل كلمة المرور الجديدة">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="confirmAdminPassword">تأكيد كلمة المرور الجديدة</label>
+                        <input type="password" id="confirmAdminPassword" placeholder="تأكيد كلمة المرور الجديدة">
+                    </div>
+                    
+                    <div class="admin-actions">
+                        <button id="changePasswordBtn">
+                            <i class="fas fa-key"></i> تغيير كلمة المرور
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="report-container">
+                    <h3 class="section-title">
+                        <i class="fas fa-database"></i>
+                        إدارة البيانات
+                    </h3>
+                    
+                    <div class="admin-actions">
+                        <button id="backupDataBtn">
+                            <i class="fas fa-download"></i> نسخ احتياطي للبيانات
+                        </button>
+                        <button id="restoreDataBtn">
+                            <i class="fas fa-upload"></i> استعادة البيانات
+                        </button>
+                        <button id="resetDataBtn" style="background: var(--error);">
+                            <i class="fas fa-trash"></i> إعادة ضبط البيانات
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- صفحة التقارير -->
             <div id="reportsPage" class="page">
                 <h2 class="section-title">
@@ -1592,7 +1714,7 @@
 
     <script>
         // كود الدخول
-        const INVITE_CODE = "BABA123";
+        let ADMIN_PASSWORD = "BABA123";
         
         // بيانات الخدام
         let servants = [
@@ -1606,6 +1728,7 @@
         let currentMemberId = null;
         let activities = [];
         let currentUser = null;
+        let currentEditingNotes = false;
         
         // عناصر الصفحة
         const loginPage = document.getElementById('loginPage');
@@ -1613,7 +1736,6 @@
         const loginBtn = document.getElementById('loginBtn');
         const inviteCodeInput = document.getElementById('inviteCode');
         const codeError = document.getElementById('codeError');
-        const resetBtn = document.getElementById('resetBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const addMemberBtn = document.getElementById('addMemberBtn');
         const homeBtn = document.getElementById('homeBtn');
@@ -1621,12 +1743,14 @@
         const attendanceBtn = document.getElementById('attendanceBtn');
         const reportsBtn = document.getElementById('reportsBtn');
         const servantsBtn = document.getElementById('servantsBtn');
+        const adminSettingsBtn = document.getElementById('adminSettingsBtn');
         const homePage = document.getElementById('homePage');
         const membersPage = document.getElementById('membersPage');
         const addMemberPage = document.getElementById('addMemberPage');
         const memberDetailsPage = document.getElementById('memberDetailsPage');
         const attendancePage = document.getElementById('attendancePage');
         const servantsPage = document.getElementById('servantsPage');
+        const adminSettingsPage = document.getElementById('adminSettingsPage');
         const reportsPage = document.getElementById('reportsPage');
         const membersList = document.getElementById('membersList');
         const emptyMembers = document.getElementById('emptyMembers');
@@ -1659,6 +1783,17 @@
         const servantFormError = document.getElementById('servantFormError');
         const importExcelBtn = document.getElementById('importExcelBtn');
         const excelFileInput = document.getElementById('excelFileInput');
+        const editNotesBtn = document.getElementById('editNotesBtn');
+        const memberNotesText = document.getElementById('memberNotesText');
+        const memberNotesEdit = document.getElementById('memberNotesEdit');
+        const notesActions = document.getElementById('notesActions');
+        const saveNotesBtn = document.getElementById('saveNotesBtn');
+        const cancelNotesBtn = document.getElementById('cancelNotesBtn');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const adminSettingsModal = document.getElementById('adminSettingsModal');
+        const saveAdminPasswordBtn = document.getElementById('saveAdminPasswordBtn');
+        const cancelAdminSettingsBtn = document.getElementById('cancelAdminSettingsBtn');
+        const adminSettingsError = document.getElementById('adminSettingsError');
         
         // عند تغيير نوع المستخدم
         userTypeSelect.addEventListener('change', function() {
@@ -1680,7 +1815,7 @@
             const servantPhone = servantPhoneInput.value.trim();
             
             if(userType === 'admin') {
-                if(enteredCode === INVITE_CODE) {
+                if(enteredCode === ADMIN_PASSWORD) {
                     currentUser = { 
                         type: 'admin',
                         name: 'المسؤول'
@@ -1691,6 +1826,11 @@
                     loadMembers();
                     updateStatistics();
                     updateUserWelcome();
+                    
+                    // إظهار أزرار المسؤول فقط
+                    servantsBtn.style.display = 'flex';
+                    adminSettingsBtn.style.display = 'flex';
+                    deleteMemberBtn.style.display = 'block';
                 } else {
                     showError();
                 }
@@ -1711,6 +1851,11 @@
                     loadMembers();
                     updateStatistics();
                     updateUserWelcome();
+                    
+                    // إخفاء أزرار المسؤول
+                    servantsBtn.style.display = 'none';
+                    adminSettingsBtn.style.display = 'none';
+                    deleteMemberBtn.style.display = 'none';
                 } else {
                     showError();
                 }
@@ -1740,15 +1885,6 @@
                 userRole.textContent = `(${currentUser.type === 'admin' ? 'المسؤول' : 'خادم'})`;
             }
         }
-        
-        // إعادة ضبط حالة الدخول
-        resetBtn.addEventListener('click', function() {
-            inviteCodeInput.value = '';
-            servantPhoneInput.value = '';
-            inviteCodeInput.focus();
-            codeError.style.display = 'none';
-            inviteCodeInput.classList.remove('error');
-        });
         
         // تسجيل الخروج
         logoutBtn.addEventListener('click', function() {
@@ -1884,7 +2020,7 @@
                     <h2 style="color: var(--primary);">${member.fullName} <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">${member.memberType}</small></h2>
                 `;
                 
-                document.getElementById('memberNotes').textContent = member.notes || 'لا توجد ملاحظات';
+                document.getElementById('memberNotesText').textContent = member.notes || 'لا توجد ملاحظات';
                 
                 // إنشاء QR Code
                 const qrContainer = document.getElementById('memberQrcode');
@@ -1915,9 +2051,54 @@
                     activityLog.innerHTML = '<p>لا توجد أنشطة مسجلة لهذا العضو</p>';
                 }
                 
+                // إعداد ملاحظات العضو للتعديل
+                currentMemberId = memberId;
+                currentEditingNotes = false;
+                memberNotesText.style.display = 'block';
+                memberNotesEdit.style.display = 'none';
+                notesActions.style.display = 'none';
+                
                 showPage(memberDetailsPage);
             }
         }
+        
+        // تعديل ملاحظات العضو
+        editNotesBtn.addEventListener('click', function() {
+            const member = members.find(m => m.id == currentMemberId);
+            if(member) {
+                currentEditingNotes = true;
+                memberNotesEdit.value = member.notes || '';
+                memberNotesText.style.display = 'none';
+                memberNotesEdit.style.display = 'block';
+                notesActions.style.display = 'flex';
+            }
+        });
+        
+        saveNotesBtn.addEventListener('click', function() {
+            const member = members.find(m => m.id == currentMemberId);
+            if(member) {
+                member.notes = memberNotesEdit.value;
+                memberNotesText.textContent = member.notes || 'لا توجد ملاحظات';
+                
+                // العودة لوضع العرض
+                currentEditingNotes = false;
+                memberNotesText.style.display = 'block';
+                memberNotesEdit.style.display = 'none';
+                notesActions.style.display = 'none';
+                
+                // تحديث قائمة الأعضاء
+                loadMembers();
+                
+                alert('تم تحديث الملاحظات بنجاح');
+            }
+        });
+        
+        cancelNotesBtn.addEventListener('click', function() {
+            currentEditingNotes = false;
+            memberNotesText.style.display = 'block';
+            memberNotesEdit.style.display = 'none';
+            notesActions.style.display = 'none';
+        });
         
         // إضافة عضو جديد
         addMemberBtn.addEventListener('click', function() {
@@ -1980,6 +2161,7 @@
             renderServants();
             showPage(servantsPage);
         });
+        adminSettingsBtn.addEventListener('click', () => showPage(adminSettingsPage));
         reportsBtn.addEventListener('click', () => showPage(reportsPage));
         
         // إضافة أول عضو
@@ -2201,6 +2383,37 @@
             };
             
             reader.readAsArrayBuffer(file);
+        });
+        
+        // تغيير كلمة مرور المسؤول
+        changePasswordBtn.addEventListener('click', function() {
+            adminSettingsModal.style.display = 'flex';
+        });
+        
+        saveAdminPasswordBtn.addEventListener('click', function() {
+            const currentPassword = document.getElementById('currentAdminPassword').value;
+            const newPassword = document.getElementById('newAdminPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if(currentPassword !== ADMIN_PASSWORD) {
+                adminSettingsError.textContent = 'كلمة المرور الحالية غير صحيحة';
+                adminSettingsError.style.display = 'block';
+                return;
+            }
+            
+            if(newPassword !== confirmPassword) {
+                adminSettingsError.textContent = 'كلمة المرور الجديدة وتأكيدها غير متطابقين';
+                adminSettingsError.style.display = 'block';
+                return;
+            }
+            
+            ADMIN_PASSWORD = newPassword;
+            adminSettingsModal.style.display = 'none';
+            alert('تم تغيير كلمة مرور المسؤول بنجاح');
+        });
+        
+        cancelAdminSettingsBtn.addEventListener('click', function() {
+            adminSettingsModal.style.display = 'none';
         });
         
         // عند تحميل الصفحة
