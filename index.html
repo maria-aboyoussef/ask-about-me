@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:;">
     <title>اجتماع بابا وماما - كنيسة المرقسية</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -32,6 +28,7 @@
             --error: #e74c3c;
             --warning: #f39c12;
             --delete: #e74c3c;
+            --import: #3498db;
         }
         
         body {
@@ -41,14 +38,12 @@
             padding-bottom: 80px;
         }
         
-        /* التصميم المتجاوب */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 15px;
         }
         
-        /* شاشة الدخول */
         .login-container {
             display: flex;
             flex-direction: column;
@@ -158,7 +153,6 @@
             transform: translateY(-2px);
         }
         
-        /* رسالة الإرشادات */
         .instructions {
             background: var(--accent);
             border-left: 5px solid var(--primary);
@@ -184,7 +178,6 @@
             line-height: 1.6;
         }
         
-        /* تنبيهات */
         .alert {
             padding: 15px;
             border-radius: 10px;
@@ -232,13 +225,20 @@
             gap: 10px;
         }
         
-        /* تصميم متجاوب */
         @media (max-width: 768px) {
             .login-box {
                 padding: 30px 20px;
             }
             
             .report-filters {
+                flex-direction: column;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+            
+            .import-container {
                 flex-direction: column;
             }
         }
@@ -252,7 +252,6 @@
             background: #c0392b;
         }
         
-        /* زر حذف */
         .delete-btn {
             background: var(--delete);
         }
@@ -272,7 +271,6 @@
             color: white;
         }
         
-        /* صفحة تأكيد الحذف */
         #deleteConfirmation {
             position: fixed;
             top: 0;
@@ -315,7 +313,6 @@
             flex: 1;
         }
         
-        /* بطاقات الأعضاء */
         .members-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -417,7 +414,6 @@
             transform: translateY(-2px);
         }
         
-        /* زر إضافة جديد */
         .add-btn {
             position: fixed;
             bottom: 30px;
@@ -463,7 +459,6 @@
             margin-bottom: 15px;
         }
         
-        /* الإحصائيات */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -497,7 +492,6 @@
             color: var(--gray);
         }
         
-        /* شريط التنقل */
         .navbar {
             background: var(--primary);
             color: white;
@@ -546,7 +540,6 @@
             background: rgba(255,255,255,0.3);
         }
         
-        /* صفحات التطبيق */
         .page {
             display: none;
             animation: fadeIn 0.5s ease;
@@ -583,7 +576,6 @@
             color: var(--primary);
         }
         
-        /* صفحة التقارير */
         .report-filters {
             display: flex;
             gap: 15px;
@@ -650,6 +642,31 @@
         
         .report-table {
             margin: 30px 0;
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table th {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .data-table tr:hover {
+            background: #f9f9f9;
         }
         
         .report-actions {
@@ -658,7 +675,6 @@
             margin-top: 30px;
         }
         
-        /* صفحة تسجيل الحضور */
         .attendance-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -720,6 +736,129 @@
             border-radius: 8px;
             border: 1px solid #ddd;
             font-size: 16px;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            width: auto;
+            padding: 12px 20px;
+            background: var(--secondary);
+        }
+        
+        .export-btn.pdf {
+            background: #e74c3c;
+        }
+        
+        .export-btn.excel {
+            background: #27ae60;
+        }
+        
+        .export-btn.print {
+            background: #7f8c8d;
+        }
+        
+        .export-btn.import {
+            background: var(--import);
+        }
+        
+        .import-container {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px dashed var(--import);
+        }
+        
+        .import-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--import);
+        }
+        
+        .file-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-drop-area:hover, .file-drop-area.active {
+            border-color: var(--import);
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .file-drop-area i {
+            font-size: 48px;
+            color: var(--import);
+            margin-bottom: 15px;
+        }
+        
+        .file-drop-area p {
+            margin: 10px 0;
+            color: var(--gray);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-preview {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .preview-table th, .preview-table td {
+            padding: 10px 12px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .preview-table th {
+            background: var(--import);
+            color: white;
+        }
+        
+        .preview-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .import-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .template-download {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            color: var(--import);
+            text-decoration: none;
+        }
+        
+        .template-download:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -888,7 +1027,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم ملؤه ديناميكيًا -->
+                        <tr>
+                            <td>28/06/2025 10:30</td>
+                            <td>المسؤول</td>
+                            <td>تسجيل دخول إلى التطبيق</td>
+                        </tr>
+                        <tr>
+                            <td>27/06/2025 15:45</td>
+                            <td>ماريان حنا</td>
+                            <td>تسجيل حضور في الاجتماع</td>
+                        </tr>
+                        <tr>
+                            <td>26/06/2025 09:20</td>
+                            <td>المسؤول</td>
+                            <td>إضافة عضو جديد: جورج نبيل</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -909,8 +1062,43 @@
                     </button>
                 </div>
                 
+                <div class="import-container">
+                    <div class="import-header">
+                        <i class="fas fa-file-import fa-2x"></i>
+                        <h3>استيراد أعضاء من ملف إكسل</h3>
+                    </div>
+                    
+                    <div class="file-drop-area" id="fileDropArea">
+                        <i class="fas fa-file-excel fa-3x"></i>
+                        <p>اسحب وأفلت ملف إكسل هنا</p>
+                        <p>أو</p>
+                        <button id="browseFileBtn" class="export-btn import">
+                            <i class="fas fa-folder-open"></i> تصفح الملفات
+                        </button>
+                        <input type="file" id="excelFileInput" class="file-input" accept=".xlsx, .xls">
+                    </div>
+                    
+                    <a href="#" class="template-download" id="downloadTemplate">
+                        <i class="fas fa-download"></i> تحميل نموذج إكسل للإستيراد
+                    </a>
+                    
+                    <div class="file-preview" id="filePreview">
+                        <h4><i class="fas fa-table"></i> معاينة البيانات المستوردة</h4>
+                        <div id="previewTable"></div>
+                    </div>
+                    
+                    <div class="import-actions" id="importActions" style="display: none;">
+                        <button id="confirmImportBtn" class="export-btn import">
+                            <i class="fas fa-check"></i> تأكيد الاستيراد
+                        </button>
+                        <button id="cancelImportBtn" style="background: var(--gray);">
+                            <i class="fas fa-times"></i> إلغاء
+                        </button>
+                    </div>
+                </div>
+                
                 <div id="membersList" class="members-grid">
-                    <!-- الأعضاء سيتم إضافتها ديناميكيًا -->
+                    <!-- سيتم ملؤه ديناميكيًا -->
                 </div>
                 
                 <div id="emptyMembers" class="empty-state" style="display: none;">
@@ -923,13 +1111,13 @@
                 </div>
                 
                 <div class="export-buttons">
-                    <button class="export-btn">
+                    <button class="export-btn pdf">
                         <i class="fas fa-file-pdf"></i> تصدير إلى PDF
                     </button>
-                    <button class="export-btn">
+                    <button class="export-btn excel">
                         <i class="fas fa-file-excel"></i> تصدير إلى Excel
                     </button>
-                    <button class="export-btn">
+                    <button class="export-btn print">
                         <i class="fas fa-print"></i> طباعة القائمة
                     </button>
                 </div>
@@ -951,7 +1139,7 @@
                         
                         <div class="input-group">
                             <label for="memberType">النوع</label>
-                            <select id="memberType" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
+                            <select id="memberType">
                                 <option value="بابا">بابا</option>
                                 <option value="ماما">ماما</option>
                             </select>
@@ -994,7 +1182,7 @@
                         
                         <div class="input-group">
                             <label for="preferredContact">الطريقة المفضلة للافتقاد</label>
-                            <select id="preferredContact" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
+                            <select id="preferredContact">
                                 <option value="مكالمة">مكالمة</option>
                                 <option value="زيارة">زيارة</option>
                                 <option value="لا أرغب">لا أرغب</option>
@@ -1003,7 +1191,7 @@
                         
                         <div class="input-group">
                             <label for="maritalStatus">حالة الزوج/ة</label>
-                            <select id="maritalStatus" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px;">
+                            <select id="maritalStatus">
                                 <option value="موجود">موجود</option>
                                 <option value="مسافر">مسافر</option>
                                 <option value="أرمل">أرمل</option>
@@ -1046,7 +1234,71 @@
                     </div>
                     
                     <div id="memberDetailsContent">
-                        <!-- سيتم ملؤه ديناميكيًا -->
+                        <div class="member-info">
+                            <i class="fas fa-phone"></i>
+                            <span><strong>رقم الهاتف:</strong> 01234567890</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span><strong>العنوان:</strong> 15 شارع الكنيسة، القاهرة</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-child"></i>
+                            <span><strong>الأطفال:</strong> 3 أطفال (5,8,12 سنة)</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-briefcase"></i>
+                            <span><strong>الوظيفة:</strong> معلمة</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-user-tie"></i>
+                            <span><strong>كاهن المنطقة:</strong> الأب بطرس</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span><strong>تاريخ الميلاد:</strong> 12/03/1985</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-heart"></i>
+                            <span><strong>حالة الزوج:</strong> موجود</span>
+                        </div>
+                        <div class="member-info">
+                            <i class="fas fa-comments"></i>
+                            <span><strong>طريقة الافتقاد المفضلة:</strong> مكالمة</span>
+                        </div>
+                        
+                        <h3 style="margin: 20px 0 15px; color: var(--primary);">
+                            <i class="fas fa-history"></i> تاريخ الحضور
+                        </h3>
+                        
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>التاريخ</th>
+                                        <th>الحضور</th>
+                                        <th>الافتقاد</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>28/06/2025</td>
+                                        <td><i class="fas fa-check-circle" style="color: green;"></i></td>
+                                        <td>مكالمة (بولا نادر)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>21/06/2025</td>
+                                        <td><i class="fas fa-times-circle" style="color: red;"></i></td>
+                                        <td>رسالة (مريم عادل)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>14/06/2025</td>
+                                        <td><i class="fas fa-check-circle" style="color: green;"></i></td>
+                                        <td>زيارة (مينا رامي)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1097,7 +1349,6 @@
                         <select id="reportType" class="report-filter">
                             <option value="attendance">تقرير الحضور</option>
                             <option value="visitation">تقرير الافتقاد</option>
-                            <option value="member">تقرير العضو</option>
                         </select>
                     </div>
                     
@@ -1106,25 +1357,18 @@
                         <select id="reportPeriod" class="report-filter">
                             <option value="weekly">أسبوعي</option>
                             <option value="monthly">شهري</option>
-                            <option value="custom">مخصص</option>
                         </select>
-                    </div>
-                    
-                    <div class="filter-group" id="customDateRange" style="display: none;">
-                        <label for="startDate">من تاريخ</label>
-                        <input type="date" id="startDate" class="report-filter">
-                    </div>
-                    
-                    <div class="filter-group" id="endDateGroup" style="display: none;">
-                        <label for="endDate">إلى تاريخ</label>
-                        <input type="date" id="endDate" class="report-filter">
                     </div>
                     
                     <div class="filter-group">
                         <label for="memberSelect">اختر العضو (اختياري)</label>
                         <select id="memberSelect" class="report-filter">
                             <option value="all">جميع الأعضاء</option>
-                            <!-- سيتم ملؤه ديناميكيًا -->
+                            <option value="1">ماريان حنا</option>
+                            <option value="2">بطرس سمير</option>
+                            <option value="3">سميرة فوزي</option>
+                            <option value="4">جورج نبيل</option>
+                            <option value="5">نادية رامي</option>
                         </select>
                     </div>
                 </div>
@@ -1138,14 +1382,11 @@
                         <div class="report-header">
                             <h2 class="report-title">تقرير الحضور الأسبوعي</h2>
                             <div class="report-actions">
-                                <button class="export-btn">
+                                <button class="export-btn pdf">
                                     <i class="fas fa-file-pdf"></i> تصدير PDF
                                 </button>
-                                <button class="export-btn">
+                                <button class="export-btn excel">
                                     <i class="fas fa-file-excel"></i> تصدير Excel
-                                </button>
-                                <button class="export-btn">
-                                    <i class="fas fa-print"></i> طباعة
                                 </button>
                             </div>
                         </div>
@@ -1179,7 +1420,7 @@
                         </h3>
                         
                         <div class="report-table">
-                            <table class="data-table">
+                            <table class="data-table" id="attendanceTable">
                                 <thead>
                                     <tr>
                                         <th>اسم العضو</th>
@@ -1193,19 +1434,31 @@
                                         <td>ماريان حنا</td>
                                         <td>5</td>
                                         <td>100%</td>
-                                        <td>15/06/2023</td>
+                                        <td>28/06/2025</td>
                                     </tr>
                                     <tr>
                                         <td>بطرس سمير</td>
                                         <td>3</td>
                                         <td>60%</td>
-                                        <td>08/06/2023</td>
+                                        <td>21/06/2025</td>
                                     </tr>
                                     <tr>
                                         <td>سميرة فوزي</td>
                                         <td>4</td>
                                         <td>80%</td>
-                                        <td>12/06/2023</td>
+                                        <td>28/06/2025</td>
+                                    </tr>
+                                    <tr>
+                                        <td>جورج نبيل</td>
+                                        <td>4</td>
+                                        <td>80%</td>
+                                        <td>28/06/2025</td>
+                                    </tr>
+                                    <tr>
+                                        <td>نادية رامي</td>
+                                        <td>2</td>
+                                        <td>40%</td>
+                                        <td>14/06/2025</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1216,14 +1469,11 @@
                         <div class="report-header">
                             <h2 class="report-title">تقرير الافتقاد الشهري</h2>
                             <div class="report-actions">
-                                <button class="export-btn">
+                                <button class="export-btn pdf">
                                     <i class="fas fa-file-pdf"></i> تصدير PDF
                                 </button>
-                                <button class="export-btn">
+                                <button class="export-btn excel">
                                     <i class="fas fa-file-excel"></i> تصدير Excel
-                                </button>
-                                <button class="export-btn">
-                                    <i class="fas fa-print"></i> طباعة
                                 </button>
                             </div>
                         </div>
@@ -1257,7 +1507,7 @@
                         </h3>
                         
                         <div class="report-table">
-                            <table class="data-table">
+                            <table class="data-table" id="visitationTable">
                                 <thead>
                                     <tr>
                                         <th>اسم العضو</th>
@@ -1270,20 +1520,32 @@
                                     <tr>
                                         <td>ماريان حنا</td>
                                         <td>زيارة</td>
-                                        <td>12/06/2023</td>
+                                        <td>12/06/2025</td>
                                         <td>مينا رامي</td>
                                     </tr>
                                     <tr>
                                         <td>بطرس سمير</td>
                                         <td>مكالمة</td>
-                                        <td>05/06/2023</td>
+                                        <td>05/06/2025</td>
                                         <td>بولا نادر</td>
                                     </tr>
                                     <tr>
                                         <td>سميرة فوزي</td>
                                         <td>رسالة</td>
-                                        <td>28/05/2023</td>
+                                        <td>28/05/2025</td>
                                         <td>مريم عادل</td>
+                                    </tr>
+                                    <tr>
+                                        <td>جورج نبيل</td>
+                                        <td>زيارة</td>
+                                        <td>20/06/2025</td>
+                                        <td>مينا رامي</td>
+                                    </tr>
+                                    <tr>
+                                        <td>نادية رامي</td>
+                                        <td>مكالمة</td>
+                                        <td>15/06/2025</td>
+                                        <td>بولا نادر</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1303,10 +1565,60 @@
         // كود الدخول
         const INVITE_CODE = "BABA123";
         
-        // تخزين بيانات الأعضاء
-        let members = JSON.parse(localStorage.getItem('members')) || [];
+        // بيانات الأعضاء الافتراضية
+        let members = [
+            {
+                id: 1,
+                fullName: "ماريان حنا",
+                memberType: "ماما",
+                phone: "01234567890",
+                address: "15 شارع الكنيسة، القاهرة",
+                priest: "الأب بطرس",
+                childrenCount: 3,
+                childrenAges: "5,8,12",
+                job: "معلمة",
+                idNumber: "29906150101234",
+                preferredContact: "مكالمة",
+                maritalStatus: "موجود",
+                birthdate: "1985-03-12"
+            },
+            {
+                id: 2,
+                fullName: "بطرس سمير",
+                memberType: "بابا",
+                phone: "01112223344",
+                address: "22 شارع النيل، الجيزة",
+                priest: "الأب مرقس",
+                childrenCount: 2,
+                childrenAges: "10,14",
+                job: "مهندس",
+                idNumber: "28805150101234",
+                preferredContact: "زيارة",
+                maritalStatus: "موجود",
+                birthdate: "1982-05-20"
+            },
+            {
+                id: 3,
+                fullName: "سميرة فوزي",
+                memberType: "ماما",
+                phone: "01005556677",
+                address: "5 شارع السوق، الإسكندرية",
+                priest: "الأب بولا",
+                childrenCount: 4,
+                childrenAges: "3,6,9,12",
+                job: "طبيبة",
+                idNumber: "29708250101234",
+                preferredContact: "رسالة",
+                maritalStatus: "موجود",
+                birthdate: "1988-07-15"
+            }
+        ];
+        
+        // تخزين بيانات الحضور
+        let attendanceRecords = [];
+        let activities = [];
         let currentMemberId = null;
-        let activities = JSON.parse(localStorage.getItem('activities')) || [];
+        let importedData = null;
         
         // عناصر الصفحة
         const loginPage = document.getElementById('loginPage');
@@ -1343,18 +1655,21 @@
         const reportType = document.getElementById('reportType');
         const reportPeriod = document.getElementById('reportPeriod');
         const memberSelect = document.getElementById('memberSelect');
-        const customDateRange = document.getElementById('customDateRange');
-        const endDateGroup = document.getElementById('endDateGroup');
+        const fileDropArea = document.getElementById('fileDropArea');
+        const excelFileInput = document.getElementById('excelFileInput');
+        const browseFileBtn = document.getElementById('browseFileBtn');
+        const filePreview = document.getElementById('filePreview');
+        const previewTable = document.getElementById('previewTable');
+        const importActions = document.getElementById('importActions');
+        const confirmImportBtn = document.getElementById('confirmImportBtn');
+        const cancelImportBtn = document.getElementById('cancelImportBtn');
+        const downloadTemplate = document.getElementById('downloadTemplate');
         
         // الدخول إلى التطبيق
         loginBtn.addEventListener('click', function() {
             const enteredCode = inviteCodeInput.value.trim();
             
             if(enteredCode === INVITE_CODE) {
-                // حفظ حالة الدخول في localStorage
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('loginCode', enteredCode);
-                
                 // إخفاء شاشة الدخول وإظهار التطبيق
                 loginPage.style.display = 'none';
                 app.style.display = 'block';
@@ -1368,9 +1683,6 @@
                 
                 // تحديث الإحصائيات
                 updateStatistics();
-                
-                // تحميل قائمة الأعضاء للتقارير
-                loadMemberSelect();
             } else {
                 // إظهار رسالة الخطأ
                 codeError.style.display = 'block';
@@ -1392,8 +1704,6 @@
         
         // إعادة ضبط حالة الدخول
         resetBtn.addEventListener('click', function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('loginCode');
             inviteCodeInput.value = '';
             inviteCodeInput.focus();
             codeError.style.display = 'none';
@@ -1403,8 +1713,6 @@
         
         // تسجيل الخروج
         logoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('loginCode');
             app.style.display = 'none';
             loginPage.style.display = 'flex';
             inviteCodeInput.value = '';
@@ -1414,7 +1722,6 @@
         
         // تحميل الأعضاء وعرضهم
         function loadMembers() {
-            members = JSON.parse(localStorage.getItem('members')) || [];
             membersList.innerHTML = '';
             
             if(members.length === 0) {
@@ -1481,85 +1788,186 @@
             });
         }
         
-        // تحميل قائمة الأعضاء للتقرير
-        function loadMemberSelect() {
-            memberSelect.innerHTML = '<option value="all">جميع الأعضاء</option>';
+        // عرض تفاصيل العضو
+        function showMemberDetails(memberId) {
+            const member = members.find(m => m.id == memberId);
+            if(member) {
+                document.getElementById('memberTitle').innerHTML = `
+                    <h2 style="color: var(--primary);">${member.fullName} <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">${member.memberType}</small></h2>
+                `;
+                
+                // عرض تفاصيل العضو
+                showPage(memberDetailsPage);
+            }
+        }
+        
+        // تأكيد حذف العضو
+        function showDeleteConfirmation(member) {
+            memberToDelete.textContent = member.fullName;
+            deleteConfirmation.style.display = 'flex';
+        }
+        
+        // إخفاء تأكيد الحذف
+        cancelDeleteBtn.addEventListener('click', function() {
+            deleteConfirmation.style.display = 'none';
+        });
+        
+        // تأكيد الحذف
+        confirmDeleteBtn.addEventListener('click', function() {
+            const memberName = memberToDelete.textContent;
+            members = members.filter(m => m.fullName !== memberName);
+            loadMembers();
+            deleteConfirmation.style.display = 'none';
+            showPage(membersPage);
+            alert(`تم حذف العضو ${memberName} بنجاح`);
+        });
+        
+        // إضافة عضو جديد
+        addMemberBtn.addEventListener('click', function() {
+            showPage(addMemberPage);
+        });
+        
+        // إلغاء إضافة عضو
+        cancelAddMember.addEventListener('click', function() {
+            showPage(membersPage);
+        });
+        
+        // حفظ العضو الجديد
+        saveMemberBtn.addEventListener('click', function() {
+            const fullName = document.getElementById('fullName').value;
+            if(!fullName) {
+                alert('الرجاء إدخال الاسم الكامل');
+                return;
+            }
+            
+            const newMember = {
+                id: Date.now(),
+                fullName: fullName,
+                memberType: document.getElementById('memberType').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                priest: document.getElementById('priest').value,
+                childrenCount: document.getElementById('childrenCount').value,
+                childrenAges: document.getElementById('childrenAges').value,
+                job: document.getElementById('job').value,
+                idNumber: document.getElementById('idNumber').value,
+                preferredContact: document.getElementById('preferredContact').value,
+                maritalStatus: document.getElementById('maritalStatus').value,
+                birthdate: document.getElementById('birthdate').value
+            };
+            
+            members.push(newMember);
+            loadMembers();
+            showPage(membersPage);
+            alert(`تم إضافة العضو ${fullName} بنجاح`);
+        });
+        
+        // تسجيل الحضور
+        attendanceBtn.addEventListener('click', function() {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = formattedDate;
+            loadAttendanceList();
+            showPage(attendancePage);
+        });
+        
+        // تحميل قائمة الحضور
+        function loadAttendanceList() {
+            const attendanceList = document.getElementById('attendanceList');
+            attendanceList.innerHTML = '';
             
             members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.id;
-                option.textContent = member.fullName;
-                memberSelect.appendChild(option);
+                const card = document.createElement('div');
+                card.className = 'attendance-card';
+                card.innerHTML = `
+                    <h3>
+                        <i class="fas fa-user"></i>
+                        ${member.fullName} (${member.memberType})
+                    </h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="attended-${member.id}" name="attended">
+                        <label for="attended-${member.id}">حضر الاجتماع</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="visited-${member.id}" name="visited">
+                        <label for="visited-${member.id}">تم الافتقاد</label>
+                    </div>
+                    <div class="input-group">
+                        <label for="notes-${member.id}">ملاحظات</label>
+                        <input type="text" id="notes-${member.id}" placeholder="ملاحظات إضافية">
+                    </div>
+                `;
+                attendanceList.appendChild(card);
             });
         }
         
-        // إظهار/إخفاء حقول التاريخ المخصص
-        reportPeriod.addEventListener('change', function() {
-            if(this.value === 'custom') {
-                customDateRange.style.display = 'block';
-                endDateGroup.style.display = 'block';
-            } else {
-                customDateRange.style.display = 'none';
-                endDateGroup.style.display = 'none';
+        // حفظ بيانات الحضور
+        saveAttendanceBtn.addEventListener('click', function() {
+            const date = document.getElementById('attendanceDate').value;
+            if(!date) {
+                alert('الرجاء تحديد تاريخ الاجتماع');
+                return;
             }
+            
+            members.forEach(member => {
+                const attended = document.getElementById(`attended-${member.id}`).checked;
+                const visited = document.getElementById(`visited-${member.id}`).checked;
+                const notes = document.getElementById(`notes-${member.id}`).value;
+                
+                if(attended || visited || notes) {
+                    attendanceRecords.push({
+                        date: date,
+                        memberId: member.id,
+                        memberName: member.fullName,
+                        attended: attended,
+                        visited: visited,
+                        notes: notes
+                    });
+                }
+            });
+            
+            alert('تم تسجيل الحضور بنجاح');
+            showPage(homePage);
+        });
+        
+        // إلغاء تسجيل الحضور
+        cancelAttendanceBtn.addEventListener('click', function() {
+            showPage(homePage);
         });
         
         // توليد التقرير
         generateReportBtn.addEventListener('click', function() {
-            const type = reportType.value;
-            const period = reportPeriod.value;
-            const memberId = memberSelect.value;
-            
-            // إضافة رسالة أن التقرير قيد التوليد
+            createCharts();
             const alert = document.createElement('div');
             alert.className = 'alert alert-success';
             alert.innerHTML = `
-                <i class="fas fa-sync fa-spin"></i>
+                <i class="fas fa-check-circle"></i>
                 <div>
-                    <strong>جاري توليد التقرير...</strong>
-                    <p>يرجى الانتظار بينما نقوم بمعالجة طلبك.</p>
+                    <strong>تم توليد التقرير بنجاح!</strong>
+                    <p>يمكنك الآن تصدير التقرير أو طباعته.</p>
                 </div>
             `;
             document.querySelector('#reportsPage .app-content').prepend(alert);
             
-            // محاكاة عملية التوليد
             setTimeout(() => {
                 alert.remove();
-                
-                // إضافة رسالة نجاح
-                const successAlert = document.createElement('div');
-                successAlert.className = 'alert alert-success';
-                successAlert.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong>تم توليد التقرير بنجاح!</strong>
-                        <p>يمكنك الآن تصدير التقرير أو طباعته.</p>
-                    </div>
-                `;
-                document.querySelector('#reportsPage .app-content').prepend(successAlert);
-                
-                // إخفاء الرسالة بعد 3 ثوان
-                setTimeout(() => {
-                    successAlert.remove();
-                }, 3000);
-                
-                // إنشاء الرسوم البيانية
-                createCharts();
-                
-            }, 2000);
+            }, 3000);
         });
         
-        // إنشاء الرسوم البيانية للتقارير
+        // إنشاء الرسوم البيانية
         function createCharts() {
             // رسم بياني للحضور
             const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-            new Chart(attendanceCtx, {
+            if(attendanceCtx.chart) {
+                attendanceCtx.chart.destroy();
+            }
+            attendanceCtx.chart = new Chart(attendanceCtx, {
                 type: 'bar',
                 data: {
                     labels: ['ماريان حنا', 'بطرس سمير', 'سميرة فوزي', 'جورج نبيل', 'نادية رامي'],
                     datasets: [{
                         label: 'عدد مرات الحضور',
-                        data: [5, 3, 4, 2, 4],
+                        data: [5, 3, 4, 4, 2],
                         backgroundColor: 'rgba(44, 110, 73, 0.7)',
                         borderColor: 'rgba(44, 110, 73, 1)',
                         borderWidth: 1
@@ -1570,7 +1978,10 @@
                     maintainAspectRatio: false,
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
                         }
                     }
                 }
@@ -1578,7 +1989,10 @@
             
             // رسم بياني للافتقاد
             const visitationCtx = document.getElementById('visitationChart').getContext('2d');
-            new Chart(visitationCtx, {
+            if(visitationCtx.chart) {
+                visitationCtx.chart.destroy();
+            }
+            visitationCtx.chart = new Chart(visitationCtx, {
                 type: 'pie',
                 data: {
                     labels: ['زيارات منزلية', 'مكالمات', 'رسائل'],
@@ -1604,55 +2018,284 @@
             });
         }
         
-        // بقية الكود (عرض تفاصيل العضو، تسجيل الحضور، إلخ) ...
-        // ... [الكود السابق المتبقي يبقى كما هو] ...
+        // تحديث الإحصائيات
+        function updateStatistics() {
+            document.getElementById('totalMembers').textContent = members.length;
+            document.getElementById('totalAttendance').textContent = "24";
+            document.getElementById('totalVisits').textContent = "12";
+            document.getElementById('newMembers').textContent = "3";
+        }
         
         // التنقل بين الصفحات
         function showPage(page) {
-            // إخفاء جميع الصفحات
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            
-            // إظهار الصفحة المطلوبة
             page.style.display = 'block';
         }
         
         // أحداث التنقل
         homeBtn.addEventListener('click', () => showPage(homePage));
-        membersBtn.addEventListener('click', () => showPage(membersPage));
-        attendanceBtn.addEventListener('click', () => {
-            // تعيين تاريخ اليوم كقيمة افتراضية
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('attendanceDate').value = formattedDate;
-            
-            // تحميل الأعضاء لتسجيل الحضور
-            loadAttendanceList();
-            showPage(attendancePage);
+        membersBtn.addEventListener('click', () => {
+            showPage(membersPage);
+            // إخفاء معاينة الاستيراد
+            filePreview.style.display = 'none';
+            importActions.style.display = 'none';
         });
         reportsBtn.addEventListener('click', () => {
             showPage(reportsPage);
-            // إنشاء الرسوم البيانية عند الدخول
             createCharts();
         });
         
-        // التحقق من حالة الدخول عند تحميل الصفحة
-        window.addEventListener('DOMContentLoaded', function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const savedCode = localStorage.getItem('loginCode');
+        // إضافة أول عضو
+        addFirstMember.addEventListener('click', () => showPage(addMemberPage));
+        
+        // فتح نافذة اختيار الملف
+        browseFileBtn.addEventListener('click', function() {
+            excelFileInput.click();
+        });
+        
+        // سحب وإفلات الملف
+        fileDropArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('active');
+        });
+        
+        fileDropArea.addEventListener('dragleave', function() {
+            this.classList.remove('active');
+        });
+        
+        fileDropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('active');
             
-            if(isLoggedIn === 'true' && savedCode === INVITE_CODE) {
-                loginPage.style.display = 'none';
-                app.style.display = 'block';
-                loadMembers();
-                updateStatistics();
-                updateRecentActivities();
-                loadMemberSelect();
+            if(e.dataTransfer.files.length) {
+                excelFileInput.files = e.dataTransfer.files;
+                handleExcelFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // اختيار الملف
+        excelFileInput.addEventListener('change', function(e) {
+            if(this.files.length) {
+                handleExcelFile(this.files[0]);
+            }
+        });
+        
+        // معالجة ملف Excel
+        function handleExcelFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // الحصول على الورقة الأولى
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // تحويل إلى JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    if(jsonData.length === 0) {
+                        throw new Error('الملف لا يحتوي على بيانات');
+                    }
+                    
+                    // تخزين البيانات مؤقتًا
+                    importedData = jsonData;
+                    
+                    // عرض معاينة البيانات
+                    showPreview(jsonData);
+                    
+                } catch (error) {
+                    alert('خطأ في معالجة الملف: ' + error.message);
+                    console.error(error);
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('حدث خطأ أثناء قراءة الملف');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // عرض معاينة البيانات
+        function showPreview(data) {
+            if(data.length === 0) return;
+            
+            // عرض أول 5 صفوف فقط للمعاينة
+            const previewData = data.slice(0, 5);
+            
+            let tableHtml = `
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+            `;
+            
+            // رؤوس الجدول (أسماء الأعمدة)
+            const headers = Object.keys(previewData[0]);
+            headers.forEach(header => {
+                tableHtml += `<th>${header}</th>`;
+            });
+            
+            tableHtml += `
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // بيانات الصفوف
+            previewData.forEach(row => {
+                tableHtml += '<tr>';
+                headers.forEach(header => {
+                    tableHtml += `<td>${row[header] || ''}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            
+            previewTable.innerHTML = tableHtml;
+            filePreview.style.display = 'block';
+            importActions.style.display = 'flex';
+        }
+        
+        // تأكيد الاستيراد
+        confirmImportBtn.addEventListener('click', function() {
+            if(!importedData || importedData.length === 0) {
+                alert('لا توجد بيانات للاستيراد');
+                return;
             }
             
-            // تعيين تاريخ اليوم كقيمة افتراضية في نموذج الحضور
+            // تحويل البيانات إلى تنسيق الأعضاء
+            const newMembers = importedData.map(row => {
+                return {
+                    id: Date.now() + Math.floor(Math.random() * 1000), // إنشاء معرف فريد
+                    fullName: row['الاسم الكامل'] || '',
+                    memberType: row['النوع'] || 'بابا',
+                    phone: row['رقم الهاتف'] || '',
+                    address: row['العنوان'] || '',
+                    priest: row['كاهن المنطقة'] || '',
+                    childrenCount: row['عدد الأطفال'] || 0,
+                    childrenAges: row['أعمار الأطفال'] || '',
+                    job: row['الوظيفة'] || '',
+                    idNumber: row['رقم الهوية'] || '',
+                    preferredContact: row['الطريقة المفضلة للافتقاد'] || 'مكالمة',
+                    maritalStatus: row['حالة الزوج/ة'] || 'موجود',
+                    birthdate: row['تاريخ الميلاد'] || ''
+                };
+            });
+            
+            // دمج الأعضاء الجدد مع القائمة الحالية
+            members = [...members, ...newMembers];
+            loadMembers();
+            
+            // إظهار رسالة نجاح
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>تم استيراد الأعضاء بنجاح!</strong>
+                    <p>تم إضافة ${newMembers.length} عضو جديد إلى قاعدة البيانات.</p>
+                </div>
+            `;
+            membersPage.prepend(alert);
+            
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+            
+            // إخفاء معاينة الاستيراد
+            filePreview.style.display = 'none';
+            importActions.style.display = 'none';
+        });
+        
+        // إلغاء الاستيراد
+        cancelImportBtn.addEventListener('click', function() {
+            filePreview.style.display = 'none';
+            importActions.style.display = 'none';
+            importedData = null;
+        });
+        
+        // تحميل نموذج إكسل
+        downloadTemplate.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // إنشاء نموذج بيانات
+            const templateData = [
+                {
+                    "الاسم الكامل": "مثال: أحمد محمد",
+                    "النوع": "بابا",
+                    "رقم الهاتف": "01234567890",
+                    "العنوان": "مثال: 15 شارع الكنيسة، القاهرة",
+                    "كاهن المنطقة": "مثال: الأب بطرس",
+                    "عدد الأطفال": "3",
+                    "أعمار الأطفال": "5,8,12",
+                    "الوظيفة": "مثال: معلم",
+                    "رقم الهوية": "29906150101234",
+                    "الطريقة المفضلة للافتقاد": "مكالمة",
+                    "حالة الزوج/ة": "موجود",
+                    "تاريخ الميلاد": "1985-03-12"
+                }
+            ];
+            
+            // إنشاء ورقة عمل
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            
+            // إنشاء مصنف
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "أعضاء");
+            
+            // تنزيل الملف
+            XLSX.writeFile(wb, "نموذج_استيراد_الأعضاء.xlsx");
+        });
+        
+        // تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', function() {
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('attendanceDate').value = formattedDate;
+            
+            // إضافة بيانات إضافية للأعضاء
+            members.push({
+                id: 4,
+                fullName: "جورج نبيل",
+                memberType: "بابا",
+                phone: "01001112233",
+                address: "8 شارع الجامعة، المنصورة",
+                priest: "الأب يوحنا",
+                childrenCount: 1,
+                childrenAges: "7",
+                job: "محاسب",
+                idNumber: "29011150101234",
+                preferredContact: "زيارة",
+                maritalStatus: "موجود",
+                birthdate: "1987-09-30"
+            });
+            
+            members.push({
+                id: 5,
+                fullName: "نادية رامي",
+                memberType: "ماما",
+                phone: "01223334455",
+                address: "33 شارع الثورة، طنطا",
+                priest: "الأب مرقس",
+                childrenCount: 2,
+                childrenAges: "4,9",
+                job: "ممرضة",
+                idNumber: "29503150101234",
+                preferredContact: "مكالمة",
+                maritalStatus: "موجود",
+                birthdate: "1989-01-22"
+            });
+            
+            // تحميل الأعضاء
+            loadMembers();
         });
     </script>
 </body>
