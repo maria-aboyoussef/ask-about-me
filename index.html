@@ -1,2301 +1,422 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اجتماع بابا وماما - كنيسة المرقسية</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ... (بقية ال head كما هي) ... -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
-        
-        :root {
-            --primary: #2c6e49;
-            --secondary: #4c956c;
-            --accent: #fefee3;
-            --light: #d8f3dc;
-            --dark: #1b4332;
-            --gray: #555;
-            --white: #fff;
-            --shadow: 0 4px 12px rgba(0,0,0,0.1);
-            --error: #e74c3c;
-            --warning: #f39c12;
-            --delete: #e74c3c;
-            --import: #3498db;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-        
-        .login-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .login-box {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 500px;
-            position: relative;
-        }
-        
-        .app-logo {
-            width: 120px;
-            height: 120px;
+        /* إضافة أنماط جديدة */
+        .welcome-message {
             background: var(--light);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            color: var(--primary);
-            border: 5px solid var(--accent);
-        }
-        
-        h1 {
-            color: var(--primary);
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .app-description {
-            color: var(--gray);
-            margin-bottom: 30px;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
-        .input-group {
-            margin-bottom: 25px;
-            text-align: right;
-            position: relative;
-        }
-        
-        .error-message {
-            color: var(--error);
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        input, select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input.error, select.error {
-            border-color: var(--error);
-        }
-        
-        input:focus, select:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-        
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(44, 110, 73, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        button:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
-        
-        .instructions {
-            background: var(--accent);
-            border-left: 5px solid var(--primary);
-            padding: 20px;
-            border-radius: 0 10px 10px 0;
-            margin: 30px 0;
-        }
-        
-        .instructions h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .instructions ul {
-            padding-right: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-        
-        .alert {
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 5px solid #28a745;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 5px solid #dc3545;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 5px solid var(--warning);
-        }
-        
-        .alert i {
-            font-size: 24px;
-        }
-        
-        .help-box {
-            background: var(--light);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            border: 1px dashed var(--primary);
-        }
-        
-        .help-box h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        @media (max-width: 768px) {
-            .login-box {
-                padding: 30px 20px;
-            }
-            
-            .report-filters {
-                flex-direction: column;
-            }
-            
-            .export-buttons {
-                flex-direction: column;
-            }
-            
-            .import-container {
-                flex-direction: column;
-            }
-        }
-        
-        .reset-btn {
-            background: var(--error);
-            margin-top: 15px;
-        }
-        
-        .reset-btn:hover {
-            background: #c0392b;
-        }
-        
-        .delete-btn {
-            background: var(--delete);
-        }
-        
-        .delete-btn:hover {
-            background: #c0392b;
-        }
-        
-        .action-btn.delete {
-            background: #f8d7da;
-            color: var(--delete);
-            border: 1px solid var(--delete);
-        }
-        
-        .action-btn.delete:hover {
-            background: var(--delete);
-            color: white;
-        }
-        
-        #deleteConfirmation {
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.7);
-            display: none;
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
         
-        .confirmation-box {
+        .modal-content {
             background: white;
             border-radius: 15px;
             padding: 30px;
             width: 90%;
             max-width: 500px;
-            text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .confirmation-box h2 {
-            color: var(--delete);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .confirmation-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        .confirmation-buttons button {
-            flex: 1;
-        }
-        
-        .members-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-        
-        .member-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s;
-            position: relative;
-        }
-        
-        .member-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .member-header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .member-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--primary);
-        }
-        
-        .member-name {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        
-        .member-type {
-            font-size: 14px;
-            background: rgba(255,255,255,0.2);
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-top: 5px;
-        }
-        
-        .member-body {
-            padding: 20px;
-        }
-        
-        .member-info {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .member-info i {
-            color: var(--primary);
-            font-size: 18px;
-            min-width: 24px;
-            margin-top: 3px;
-        }
-        
-        .member-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .action-btn {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-            background: var(--light);
-            color: var(--dark);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        
-        .action-btn:hover {
-            background: var(--secondary);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .add-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 90;
-            transition: all 0.3s;
-        }
-        
-        .add-btn:hover {
-            background: var(--secondary);
-            transform: scale(1.1);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            margin: 30px 0;
-        }
-        
-        .empty-state i {
-            font-size: 60px;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-        
-        .empty-state h3 {
-            color: var(--gray);
-            margin-bottom: 15px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px 20px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s;
-            border-bottom: 4px solid var(--primary);
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-value {
-            font-size: 36px;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            font-size: 16px;
-            color: var(--gray);
-        }
-        
-        .navbar {
-            background: var(--primary);
-            color: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .app-title {
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .nav-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .page {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .active-page {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .section-title {
-            font-size: 24px;
-            color: var(--primary);
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .section-title i {
-            background: var(--light);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-        
-        .report-filters {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .report-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-        
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .report-title {
-            color: var(--primary);
-            font-size: 22px;
-        }
-        
-        .report-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .summary-card {
-            background: var(--light);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .summary-card h3 {
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .summary-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--dark);
-        }
-        
-        .chart-container {
-            height: 300px;
-            margin: 30px 0;
-        }
-        
-        .report-table {
-            margin: 30px 0;
-            overflow-x: auto;
-        }
-        
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .data-table th, .data-table td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .data-table th {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .data-table tr:hover {
-            background: #f9f9f9;
-        }
-        
-        .report-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        .attendance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .attendance-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary);
-        }
-        
-        .attendance-card h3 {
-            color: var(--primary);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .checkbox-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .checkbox-group input {
-            width: 20px;
-            height: 20px;
-        }
-        
-        .checkbox-group label {
-            margin: 0;
-            font-weight: normal;
-        }
-        
-        .attendance-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .attendance-date {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: var(--light);
-            padding: 10px 15px;
-            border-radius: 10px;
-        }
-        
-        .attendance-date input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-size: 16px;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .export-btn {
-            width: auto;
-            padding: 12px 20px;
-            background: var(--secondary);
-        }
-        
-        .export-btn.pdf {
-            background: #e74c3c;
-        }
-        
-        .export-btn.excel {
-            background: #27ae60;
-        }
-        
-        .export-btn.print {
-            background: #7f8c8d;
-        }
-        
-        .export-btn.import {
-            background: var(--import);
         }
         
         .import-container {
             background: var(--light);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-            border: 2px dashed var(--import);
-        }
-        
-        .import-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            color: var(--import);
-        }
-        
-        .file-drop-area {
-            border: 2px dashed #ccc;
+            padding: 20px;
             border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            margin: 20px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .file-drop-area:hover, .file-drop-area.active {
-            border-color: var(--import);
-            background: rgba(52, 152, 219, 0.05);
-        }
-        
-        .file-drop-area i {
-            font-size: 48px;
-            color: var(--import);
-            margin-bottom: 15px;
-        }
-        
-        .file-drop-area p {
-            margin: 10px 0;
-            color: var(--gray);
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .file-preview {
             margin-top: 20px;
-            display: none;
-        }
-        
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .preview-table th, .preview-table td {
-            padding: 10px 12px;
-            text-align: right;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .preview-table th {
-            background: var(--import);
-            color: white;
-        }
-        
-        .preview-table tr:hover {
-            background: #f9f9f9;
-        }
-        
-        .import-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .template-download {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-            color: var(--import);
-            text-decoration: none;
-        }
-        
-        .template-download:hover {
-            text-decoration: underline;
+            border: 2px dashed var(--primary);
         }
     </style>
 </head>
 <body>
-    <!-- شاشة الدخول -->
-    <div id="loginPage" class="login-container">
-        <div class="login-box">
-            <div class="app-logo">
-                <i class="fas fa-church"></i>
-            </div>
-            <h1>اجتماع بابا وماما</h1>
-            <p class="app-description">تطبيق إدارة أعضاء مجموعة "بابا وماما" بكنيسة المرقسية لتسجيل الحضور والافتقاد والبيانات الشخصية</p>
-            
-            <div class="input-group">
-                <label for="inviteCode">كود الدعوة</label>
-                <input type="password" id="inviteCode" placeholder="أدخل كود الدعوة للدخول">
-                <div class="error-message" id="codeError">كود الدعوة غير صحيح. الرجاء المحاولة مرة أخرى.</div>
-            </div>
-            
-            <button id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> دخول إلى التطبيق
-            </button>
-            
-            <div class="help-box">
-                <h3><i class="fas fa-question-circle"></i> مساعدة في الدخول</h3>
-                <p>إذا كنت تواجه مشكلة في الدخول، جرب الحلول التالية:</p>
-                <ul>
-                    <li>تأكد من كتابة الكود بالأحرف الكبيرة: <strong>BABA123</strong></li>
-                    <li>لا تستخدم مسافات قبل أو بعد الكود</li>
-                    <li>إذا نسيت الكود، اضغط على زر إعادة الضبط أدناه</li>
-                    <li>جرب تحديث الصفحة ثم إدخال الكود مرة أخرى</li>
-                </ul>
-            </div>
-            
-            <button class="reset-btn" id="resetBtn">
-                <i class="fas fa-sync-alt"></i> إعادة ضبط حالة الدخول
-            </button>
+    <!-- ... (بقية الجسم كما هي) ... -->
+    
+    <!-- إضافة منطقة الترحيب في الصفحة الرئيسية -->
+    <div id="homePage" class="page active-page">
+        <div class="alert alert-success">
+            <!-- ... -->
         </div>
+        
+        <!-- إضافة رسالة ترحيب -->
+        <div class="welcome-message" id="welcomeMessage">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <strong id="loggedInUser">مرحباً!</strong>
+                <p id="userRole">يتم تحميل معلومات المستخدم...</p>
+            </div>
+        </div>
+        
+        <!-- ... (بقية الصفحة الرئيسية) ... -->
     </div>
     
-    <!-- تأكيد الحذف -->
-    <div id="deleteConfirmation">
-        <div class="confirmation-box">
-            <h2><i class="fas fa-exclamation-triangle"></i> تأكيد الحذف</h2>
-            <p>هل أنت متأكد أنك تريد حذف هذا العضو؟</p>
-            <p><strong id="memberToDelete">[اسم العضو]</strong></p>
-            <p>هذا الإجراء لا يمكن التراجع عنه وسيتم حذف جميع بيانات العضو نهائيًا.</p>
+    <!-- ... (بقية الصفحات) ... -->
+    
+    <!-- نافذة تأكيد حذف الخادم -->
+    <div id="deleteServantConfirmation" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-exclamation-triangle"></i> تأكيد حذف الخادم</h2>
+            <p>هل أنت متأكد أنك تريد حذف هذا الخادم؟</p>
+            <p><strong id="servantToDelete">[اسم الخادم]</strong></p>
+            <p>هذا الإجراء لا يمكن التراجع عنه وسيتم حذف جميع بيانات الخادم نهائياً.</p>
             
             <div class="confirmation-buttons">
-                <button id="confirmDeleteBtn" class="delete-btn">
-                    <i class="fas fa-trash"></i> نعم، احذف العضو
+                <button id="confirmServantDeleteBtn" class="delete-btn">
+                    <i class="fas fa-trash"></i> نعم، احذف الخادم
                 </button>
-                <button id="cancelDeleteBtn">
+                <button id="cancelServantDeleteBtn">
                     <i class="fas fa-times"></i> إلغاء
                 </button>
             </div>
         </div>
     </div>
     
-    <!-- التطبيق الرئيسي (يظهر بعد الدخول) -->
-    <div id="app" style="display: none;">
-        <!-- شريط التنقل -->
-        <nav class="navbar">
-            <div class="container nav-container">
-                <div class="app-title">
-                    <i class="fas fa-church"></i>
-                    <span>اجتماع بابا وماما - كنيسة المرقسية</span>
-                </div>
-                <div class="nav-buttons">
-                    <button class="nav-btn" id="homeBtn" title="الصفحة الرئيسية">
-                        <i class="fas fa-home"></i>
-                    </button>
-                    <button class="nav-btn" id="membersBtn" title="قائمة الأعضاء">
-                        <i class="fas fa-users"></i>
-                    </button>
-                    <button class="nav-btn" id="attendanceBtn" title="تسجيل الحضور">
-                        <i class="fas fa-calendar-check"></i>
-                    </button>
-                    <button class="nav-btn" id="reportsBtn" title="التقارير">
-                        <i class="fas fa-chart-bar"></i>
-                    </button>
-                    <button class="nav-btn" id="logoutBtn" title="تسجيل الخروج">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
-        
-        <!-- المحتوى الرئيسي -->
-        <div class="container app-content">
-            <!-- الصفحة الرئيسية -->
-            <div id="homePage" class="page active-page">
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong>تم الدخول بنجاح!</strong>
-                        <p>مرحبًا بك في تطبيق إدارة مجموعة بابا وماما</p>
-                    </div>
-                </div>
-                
-                <h2 class="section-title">
-                    <i class="fas fa-home"></i>
-                    الصفحة الرئيسية
-                </h2>
-                
-                <div class="instructions">
-                    <h3><i class="fas fa-info-circle"></i> تعليمات استخدام التطبيق</h3>
-                    <ul>
-                        <li>استخدم قائمة التنقل أعلى الصفحة للوصول إلى الأقسام المختلفة</li>
-                        <li>اضغط على زر (+) لإضافة عضو جديد</li>
-                        <li>استخدم بطاقات الأعضاء للوصول السريع إلى بيانات العضو</li>
-                        <li>استخدم أزرار التصدير لحفظ البيانات بصيغة PDF أو Excel</li>
-                        <li>يمكنك تسجيل الحضور والافتقاد من الصفحات المخصصة</li>
-                    </ul>
-                </div>
-                
-                <div class="help-box">
-                    <h3><i class="fas fa-lightbulb"></i> نصائح للاستخدام</h3>
-                    <p>لتجنب مشاكل الدخول في المستقبل:</p>
-                    <ul>
-                        <li>احفظ كود الدعوة في مكان آمن</li>
-                        <li>لا تمسح بيانات المتصفح (Cookies و LocalStorage)</li>
-                        <li>إذا نسيت الكود، يمكنك إعادة ضبط حالة الدخول من شاشة الدخول</li>
-                        <li>استخدم نفس المتصفح عند كل دخول</li>
-                    </ul>
-                </div>
-                
-                <h2 class="section-title">
-                    <i class="fas fa-chart-line"></i>
-                    إحصائيات التطبيق
-                </h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalMembers">0</div>
-                        <div class="stat-label">إجمالي الأعضاء</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalAttendance">0</div>
-                        <div class="stat-label">حضور الاجتماع</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalVisits">0</div>
-                        <div class="stat-label">زيارات الافتقاد</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-value" id="newMembers">0</div>
-                        <div class="stat-label">أعضاء جدد</div>
-                    </div>
-                </div>
-                
-                <h2 class="section-title">
-                    <i class="fas fa-history"></i>
-                    آخر الأنشطة
-                </h2>
-                
-                <table class="data-table" id="recentActivities">
-                    <thead>
-                        <tr>
-                            <th>التاريخ</th>
-                            <th>العضو</th>
-                            <th>النشاط</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>28/06/2025 10:30</td>
-                            <td>المسؤول</td>
-                            <td>تسجيل دخول إلى التطبيق</td>
-                        </tr>
-                        <tr>
-                            <td>27/06/2025 15:45</td>
-                            <td>ماريان حنا</td>
-                            <td>تسجيل حضور في الاجتماع</td>
-                        </tr>
-                        <tr>
-                            <td>26/06/2025 09:20</td>
-                            <td>المسؤول</td>
-                            <td>إضافة عضو جديد: جورج نبيل</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- نافذة إضافة/تعديل الخادم -->
+    <div id="servantFormModal" class="modal">
+        <div class="modal-content">
+            <h2 id="servantFormTitle"><i class="fas fa-user-plus"></i> إضافة خادم جديد</h2>
+            
+            <div class="input-group">
+                <label for="servantName">اسم الخادم</label>
+                <input type="text" id="servantName" placeholder="اسم الخادم">
             </div>
             
-            <!-- صفحة الأعضاء -->
-            <div id="membersPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-users"></i>
-                    قائمة الأعضاء
-                </h2>
-                
-                <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 250px;">
-                        <input type="text" id="searchInput" placeholder="ابحث باسم العضو أو رقم الهاتف...">
-                    </div>
-                    <button id="sortMembersBtn" style="width: auto; padding: 0 20px;">
-                        <i class="fas fa-sort-alpha-down"></i> ترتيب أبجدي
-                    </button>
-                </div>
-                
-                <div class="import-container">
-                    <div class="import-header">
-                        <i class="fas fa-file-import fa-2x"></i>
-                        <h3>استيراد أعضاء من ملف إكسل</h3>
-                    </div>
-                    
-                    <div class="file-drop-area" id="fileDropArea">
-                        <i class="fas fa-file-excel fa-3x"></i>
-                        <p>اسحب وأفلت ملف إكسل هنا</p>
-                        <p>أو</p>
-                        <button id="browseFileBtn" class="export-btn import">
-                            <i class="fas fa-folder-open"></i> تصفح الملفات
-                        </button>
-                        <input type="file" id="excelFileInput" class="file-input" accept=".xlsx, .xls">
-                    </div>
-                    
-                    <a href="#" class="template-download" id="downloadTemplate">
-                        <i class="fas fa-download"></i> تحميل نموذج إكسل للإستيراد
-                    </a>
-                    
-                    <div class="file-preview" id="filePreview">
-                        <h4><i class="fas fa-table"></i> معاينة البيانات المستوردة</h4>
-                        <div id="previewTable"></div>
-                    </div>
-                    
-                    <div class="import-actions" id="importActions" style="display: none;">
-                        <button id="confirmImportBtn" class="export-btn import">
-                            <i class="fas fa-check"></i> تأكيد الاستيراد
-                        </button>
-                        <button id="cancelImportBtn" style="background: var(--gray);">
-                            <i class="fas fa-times"></i> إلغاء
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="membersList" class="members-grid">
-                    <!-- سيتم ملؤه ديناميكيًا -->
-                </div>
-                
-                <div id="emptyMembers" class="empty-state" style="display: none;">
-                    <i class="fas fa-user-slash"></i>
-                    <h3>لا يوجد أعضاء مسجلين</h3>
-                    <p>لم يتم إضافة أي أعضاء بعد. ابدأ بإضافة عضو جديد باستخدام الزر (+) في الأسفل.</p>
-                    <button id="addFirstMember" style="width: auto; margin-top: 20px;">
-                        <i class="fas fa-user-plus"></i> إضافة أول عضو
-                    </button>
-                </div>
-                
-                <div class="export-buttons">
-                    <button class="export-btn pdf">
-                        <i class="fas fa-file-pdf"></i> تصدير إلى PDF
-                    </button>
-                    <button class="export-btn excel">
-                        <i class="fas fa-file-excel"></i> تصدير إلى Excel
-                    </button>
-                    <button class="export-btn print">
-                        <i class="fas fa-print"></i> طباعة القائمة
-                    </button>
-                </div>
+            <div class="input-group">
+                <label for="servantPhoneForm">رقم الهاتف</label>
+                <input type="tel" id="servantPhoneForm" placeholder="رقم هاتف الخادم">
             </div>
             
-            <!-- صفحة إضافة عضو جديد -->
-            <div id="addMemberPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-user-plus"></i>
-                    تسجيل عضو جديد
-                </h2>
-                
-                <div class="form-container">
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="fullName">الاسم الكامل</label>
-                            <input type="text" id="fullName" placeholder="الاسم الثلاثي">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="memberType">النوع</label>
-                            <select id="memberType">
-                                <option value="بابا">بابا</option>
-                                <option value="ماما">ماما</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="phone">رقم الهاتف</label>
-                            <input type="tel" id="phone" placeholder="رقم الهاتف">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="address">العنوان</label>
-                            <input type="text" id="address" placeholder="العنوان بالتفصيل">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="priest">كاهن المنطقة</label>
-                            <input type="text" id="priest" placeholder="اسم الكاهن المسؤول">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="childrenCount">عدد الأطفال</label>
-                            <input type="number" id="childrenCount" placeholder="عدد الأطفال">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="childrenAges">أعمار الأطفال</label>
-                            <input type="text" id="childrenAges" placeholder="أعمار الأطفال مفصولة بفواصل (مثال: 5,8,12)">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="job">الوظيفة</label>
-                            <input type="text" id="job" placeholder="الوظيفة">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="idNumber">رقم الهوية</label>
-                            <input type="text" id="idNumber" placeholder="الرقم القومي">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="preferredContact">الطريقة المفضلة للافتقاد</label>
-                            <select id="preferredContact">
-                                <option value="مكالمة">مكالمة</option>
-                                <option value="زيارة">زيارة</option>
-                                <option value="لا أرغب">لا أرغب</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="maritalStatus">حالة الزوج/ة</label>
-                            <select id="maritalStatus">
-                                <option value="موجود">موجود</option>
-                                <option value="مسافر">مسافر</option>
-                                <option value="أرمل">أرمل</option>
-                                <option value="منفصل">منفصل</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="birthdate">تاريخ الميلاد</label>
-                            <input type="date" id="birthdate">
-                        </div>
-                    </div>
-                    
-                    <div class="member-actions" style="margin-top: 20px;">
-                        <button id="saveMemberBtn">
-                            <i class="fas fa-save"></i> حفظ بيانات العضو
-                        </button>
-                        <button id="cancelAddMember" style="background: var(--gray);">
-                            <i class="fas fa-times"></i> إلغاء
-                        </button>
-                    </div>
-                </div>
+            <div class="input-group">
+                <label for="servantPassword">كلمة المرور</label>
+                <input type="password" id="servantPassword" placeholder="كلمة مرور الخادم">
             </div>
             
-            <!-- صفحة تفاصيل العضو -->
-            <div id="memberDetailsPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-user"></i>
-                    تفاصيل العضو
-                </h2>
-                
-                <div class="form-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div id="memberTitle">
-                            <h2 style="color: var(--primary);">ماريان حنا <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">ماما</small></h2>
-                        </div>
-                        <button class="delete-btn" id="deleteMemberBtn">
-                            <i class="fas fa-trash"></i> حذف العضو
-                        </button>
-                    </div>
-                    
-                    <div id="memberDetailsContent">
-                        <div class="member-info">
-                            <i class="fas fa-phone"></i>
-                            <span><strong>رقم الهاتف:</strong> 01234567890</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span><strong>العنوان:</strong> 15 شارع الكنيسة، القاهرة</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-child"></i>
-                            <span><strong>الأطفال:</strong> 3 أطفال (5,8,12 سنة)</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-briefcase"></i>
-                            <span><strong>الوظيفة:</strong> معلمة</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-user-tie"></i>
-                            <span><strong>كاهن المنطقة:</strong> الأب بطرس</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span><strong>تاريخ الميلاد:</strong> 12/03/1985</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-heart"></i>
-                            <span><strong>حالة الزوج:</strong> موجود</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-comments"></i>
-                            <span><strong>طريقة الافتقاد المفضلة:</strong> مكالمة</span>
-                        </div>
-                        
-                        <h3 style="margin: 20px 0 15px; color: var(--primary);">
-                            <i class="fas fa-history"></i> تاريخ الحضور
-                        </h3>
-                        
-                        <div style="overflow-x: auto;">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>التاريخ</th>
-                                        <th>الحضور</th>
-                                        <th>الافتقاد</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>28/06/2025</td>
-                                        <td><i class="fas fa-check-circle" style="color: green;"></i></td>
-                                        <td>مكالمة (بولا نادر)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>21/06/2025</td>
-                                        <td><i class="fas fa-times-circle" style="color: red;"></i></td>
-                                        <td>رسالة (مريم عادل)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>14/06/2025</td>
-                                        <td><i class="fas fa-check-circle" style="color: green;"></i></td>
-                                        <td>زيارة (مينا رامي)</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="input-group">
+                <label for="servantConfirmPassword">تأكيد كلمة المرور</label>
+                <input type="password" id="servantConfirmPassword" placeholder="تأكيد كلمة المرور">
             </div>
             
-            <!-- صفحة تسجيل الحضور -->
-            <div id="attendancePage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-calendar-check"></i>
-                    تسجيل الحضور
-                </h2>
-                
-                <div class="form-container">
-                    <div class="attendance-date">
-                        <i class="fas fa-calendar-day"></i>
-                        <label for="attendanceDate">تاريخ اليوم:</label>
-                        <input type="date" id="attendanceDate" value="">
-                    </div>
-                    
-                    <h3 style="margin: 20px 0 15px; color: var(--primary);">
-                        <i class="fas fa-users"></i> قائمة الأعضاء
-                    </h3>
-                    
-                    <div id="attendanceList" class="attendance-grid">
-                        <!-- سيتم ملؤه ديناميكيًا -->
-                    </div>
-                    
-                    <div class="attendance-actions">
-                        <button id="saveAttendanceBtn">
-                            <i class="fas fa-save"></i> حفظ الحضور
-                        </button>
-                        <button id="cancelAttendanceBtn" style="background: var(--gray);">
-                            <i class="fas fa-times"></i> إلغاء
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <div class="error-message" id="servantFormError"></div>
             
-            <!-- صفحة التقارير -->
-            <div id="reportsPage" class="page">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-bar"></i>
-                    تقارير الحضور والافتقاد
-                </h2>
-                
-                <div class="report-filters">
-                    <div class="filter-group">
-                        <label for="reportType">نوع التقرير</label>
-                        <select id="reportType" class="report-filter">
-                            <option value="attendance">تقرير الحضور</option>
-                            <option value="visitation">تقرير الافتقاد</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="reportPeriod">الفترة الزمنية</label>
-                        <select id="reportPeriod" class="report-filter">
-                            <option value="weekly">أسبوعي</option>
-                            <option value="monthly">شهري</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="memberSelect">اختر العضو (اختياري)</label>
-                        <select id="memberSelect" class="report-filter">
-                            <option value="all">جميع الأعضاء</option>
-                            <option value="1">ماريان حنا</option>
-                            <option value="2">بطرس سمير</option>
-                            <option value="3">سميرة فوزي</option>
-                            <option value="4">جورج نبيل</option>
-                            <option value="5">نادية رامي</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <button id="generateReportBtn" style="margin-bottom: 30px;">
-                    <i class="fas fa-cogs"></i> توليد التقرير
+            <div class="confirmation-buttons">
+                <button id="saveServantBtn">
+                    <i class="fas fa-save"></i> حفظ
                 </button>
-                
-                <div id="reportResults">
-                    <div class="report-container">
-                        <div class="report-header">
-                            <h2 class="report-title">تقرير الحضور الأسبوعي</h2>
-                            <div class="report-actions">
-                                <button class="export-btn pdf">
-                                    <i class="fas fa-file-pdf"></i> تصدير PDF
-                                </button>
-                                <button class="export-btn excel">
-                                    <i class="fas fa-file-excel"></i> تصدير Excel
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="report-summary">
-                            <div class="summary-card">
-                                <h3>إجمالي الحضور</h3>
-                                <div class="summary-value">24</div>
-                            </div>
-                            <div class="summary-card">
-                                <h3>أعلى حضور</h3>
-                                <div class="summary-value">ماريان حنا</div>
-                            </div>
-                            <div class="summary-card">
-                                <h3>أقل حضور</h3>
-                                <div class="summary-value">بطرس سمير</div>
-                            </div>
-                            <div class="summary-card">
-                                <h3>متوسط الحضور</h3>
-                                <div class="summary-value">75%</div>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-container">
-                            <canvas id="attendanceChart"></canvas>
-                        </div>
-                        
-                        <h3 class="section-title">
-                            <i class="fas fa-table"></i>
-                            تفاصيل الحضور
-                        </h3>
-                        
-                        <div class="report-table">
-                            <table class="data-table" id="attendanceTable">
-                                <thead>
-                                    <tr>
-                                        <th>اسم العضو</th>
-                                        <th>عدد مرات الحضور</th>
-                                        <th>نسبة الحضور</th>
-                                        <th>آخر حضور</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>ماريان حنا</td>
-                                        <td>5</td>
-                                        <td>100%</td>
-                                        <td>28/06/2025</td>
-                                    </tr>
-                                    <tr>
-                                        <td>بطرس سمير</td>
-                                        <td>3</td>
-                                        <td>60%</td>
-                                        <td>21/06/2025</td>
-                                    </tr>
-                                    <tr>
-                                        <td>سميرة فوزي</td>
-                                        <td>4</td>
-                                        <td>80%</td>
-                                        <td>28/06/2025</td>
-                                    </tr>
-                                    <tr>
-                                        <td>جورج نبيل</td>
-                                        <td>4</td>
-                                        <td>80%</td>
-                                        <td>28/06/2025</td>
-                                    </tr>
-                                    <tr>
-                                        <td>نادية رامي</td>
-                                        <td>2</td>
-                                        <td>40%</td>
-                                        <td>14/06/2025</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="report-container">
-                        <div class="report-header">
-                            <h2 class="report-title">تقرير الافتقاد الشهري</h2>
-                            <div class="report-actions">
-                                <button class="export-btn pdf">
-                                    <i class="fas fa-file-pdf"></i> تصدير PDF
-                                </button>
-                                <button class="export-btn excel">
-                                    <i class="fas fa-file-excel"></i> تصدير Excel
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="report-summary">
-                            <div class="summary-card">
-                                <h3>إجمالي الزيارات</h3>
-                                <div class="summary-value">12</div>
-                            </div>
-                            <div class="summary-card">
-                                <h3>زيارات مكالمة</h3>
-                                <div class="summary-value">6</div>
-                            </div>
-                            <div class="summary-card">
-                                <h3>زيارات منزلية</h3>
-                                <div class="summary-value">4</div>
-                            </div>
-                            <div class="summary-card">
-                                <h3>رسائل</h3>
-                                <div class="summary-value">2</div>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-container">
-                            <canvas id="visitationChart"></canvas>
-                        </div>
-                        
-                        <h3 class="section-title">
-                            <i class="fas fa-table"></i>
-                            تفاصيل الافتقاد
-                        </h3>
-                        
-                        <div class="report-table">
-                            <table class="data-table" id="visitationTable">
-                                <thead>
-                                    <tr>
-                                        <th>اسم العضو</th>
-                                        <th>نوع الافتقاد</th>
-                                        <th>التاريخ</th>
-                                        <th>اسم الخادم</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>ماريان حنا</td>
-                                        <td>زيارة</td>
-                                        <td>12/06/2025</td>
-                                        <td>مينا رامي</td>
-                                    </tr>
-                                    <tr>
-                                        <td>بطرس سمير</td>
-                                        <td>مكالمة</td>
-                                        <td>05/06/2025</td>
-                                        <td>بولا نادر</td>
-                                    </tr>
-                                    <tr>
-                                        <td>سميرة فوزي</td>
-                                        <td>رسالة</td>
-                                        <td>28/05/2025</td>
-                                        <td>مريم عادل</td>
-                                    </tr>
-                                    <tr>
-                                        <td>جورج نبيل</td>
-                                        <td>زيارة</td>
-                                        <td>20/06/2025</td>
-                                        <td>مينا رامي</td>
-                                    </tr>
-                                    <tr>
-                                        <td>نادية رامي</td>
-                                        <td>مكالمة</td>
-                                        <td>15/06/2025</td>
-                                        <td>بولا نادر</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <button id="cancelServantBtn">
+                    <i class="fas fa-times"></i> إلغاء
+                </button>
             </div>
         </div>
-        
-        <!-- زر إضافة عضو جديد -->
-        <button class="add-btn" id="addMemberBtn" title="إضافة عضو جديد">
-            <i class="fas fa-plus"></i>
-        </button>
     </div>
+    
+    <!-- زر إضافة عضو جديد -->
+    <button class="add-btn" id="addMemberBtn" title="إضافة عضو جديد">
+        <i class="fas fa-plus"></i>
+    </button>
 
     <script>
-        // كود الدخول
-        const INVITE_CODE = "BABA123";
+        // ... (بقية المتغيرات كما هي) ...
         
-        // بيانات الأعضاء الافتراضية
-        let members = [
-            {
-                id: 1,
-                fullName: "ماريان حنا",
-                memberType: "ماما",
-                phone: "01234567890",
-                address: "15 شارع الكنيسة، القاهرة",
-                priest: "الأب بطرس",
-                childrenCount: 3,
-                childrenAges: "5,8,12",
-                job: "معلمة",
-                idNumber: "29906150101234",
-                preferredContact: "مكالمة",
-                maritalStatus: "موجود",
-                birthdate: "1985-03-12"
-            },
-            {
-                id: 2,
-                fullName: "بطرس سمير",
-                memberType: "بابا",
-                phone: "01112223344",
-                address: "22 شارع النيل، الجيزة",
-                priest: "الأب مرقس",
-                childrenCount: 2,
-                childrenAges: "10,14",
-                job: "مهندس",
-                idNumber: "28805150101234",
-                preferredContact: "زيارة",
-                maritalStatus: "موجود",
-                birthdate: "1982-05-20"
-            },
-            {
-                id: 3,
-                fullName: "سميرة فوزي",
-                memberType: "ماما",
-                phone: "01005556677",
-                address: "5 شارع السوق، الإسكندرية",
-                priest: "الأب بولا",
-                childrenCount: 4,
-                childrenAges: "3,6,9,12",
-                job: "طبيبة",
-                idNumber: "29708250101234",
-                preferredContact: "رسالة",
-                maritalStatus: "موجود",
-                birthdate: "1988-07-15"
-            }
-        ];
+        // عناصر جديدة
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const loggedInUser = document.getElementById('loggedInUser');
+        const userRole = document.getElementById('userRole');
+        const deleteServantConfirmation = document.getElementById('deleteServantConfirmation');
+        const servantToDelete = document.getElementById('servantToDelete');
+        const confirmServantDeleteBtn = document.getElementById('confirmServantDeleteBtn');
+        const cancelServantDeleteBtn = document.getElementById('cancelServantDeleteBtn');
+        const servantFormModal = document.getElementById('servantFormModal');
+        const servantFormTitle = document.getElementById('servantFormTitle');
+        const saveServantBtn = document.getElementById('saveServantBtn');
+        const cancelServantBtn = document.getElementById('cancelServantBtn');
+        const servantFormError = document.getElementById('servantFormError');
+        const importExcelBtn = document.getElementById('importExcelBtn');
+        const excelFileInput = document.createElement('input');
+        excelFileInput.type = 'file';
+        excelFileInput.accept = '.xlsx, .xls';
+        excelFileInput.style.display = 'none';
+        document.body.appendChild(excelFileInput);
         
-        // تخزين بيانات الحضور
-        let attendanceRecords = [];
-        let activities = [];
-        let currentMemberId = null;
-        let importedData = null;
-        
-        // عناصر الصفحة
-        const loginPage = document.getElementById('loginPage');
-        const app = document.getElementById('app');
-        const loginBtn = document.getElementById('loginBtn');
-        const inviteCodeInput = document.getElementById('inviteCode');
-        const codeError = document.getElementById('codeError');
-        const resetBtn = document.getElementById('resetBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const addMemberBtn = document.getElementById('addMemberBtn');
-        const homeBtn = document.getElementById('homeBtn');
-        const membersBtn = document.getElementById('membersBtn');
-        const attendanceBtn = document.getElementById('attendanceBtn');
-        const reportsBtn = document.getElementById('reportsBtn');
-        const homePage = document.getElementById('homePage');
-        const membersPage = document.getElementById('membersPage');
-        const addMemberPage = document.getElementById('addMemberPage');
-        const memberDetailsPage = document.getElementById('memberDetailsPage');
-        const attendancePage = document.getElementById('attendancePage');
-        const reportsPage = document.getElementById('reportsPage');
-        const membersList = document.getElementById('membersList');
-        const emptyMembers = document.getElementById('emptyMembers');
-        const deleteConfirmation = document.getElementById('deleteConfirmation');
-        const memberToDelete = document.getElementById('memberToDelete');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const deleteMemberBtn = document.getElementById('deleteMemberBtn');
-        const saveMemberBtn = document.getElementById('saveMemberBtn');
-        const cancelAddMember = document.getElementById('cancelAddMember');
-        const addFirstMember = document.getElementById('addFirstMember');
-        const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
-        const cancelAttendanceBtn = document.getElementById('cancelAttendanceBtn');
-        const generateReportBtn = document.getElementById('generateReportBtn');
-        const reportType = document.getElementById('reportType');
-        const reportPeriod = document.getElementById('reportPeriod');
-        const memberSelect = document.getElementById('memberSelect');
-        const fileDropArea = document.getElementById('fileDropArea');
-        const excelFileInput = document.getElementById('excelFileInput');
-        const browseFileBtn = document.getElementById('browseFileBtn');
-        const filePreview = document.getElementById('filePreview');
-        const previewTable = document.getElementById('previewTable');
-        const importActions = document.getElementById('importActions');
-        const confirmImportBtn = document.getElementById('confirmImportBtn');
-        const cancelImportBtn = document.getElementById('cancelImportBtn');
-        const downloadTemplate = document.getElementById('downloadTemplate');
-        
-        // الدخول إلى التطبيق
+        // عند الدخول
         loginBtn.addEventListener('click', function() {
-            const enteredCode = inviteCodeInput.value.trim();
+            // ... (بقية كود الدخول) ...
             
-            if(enteredCode === INVITE_CODE) {
-                // إخفاء شاشة الدخول وإظهار التطبيق
-                loginPage.style.display = 'none';
-                app.style.display = 'block';
-                
-                // إخفاء رسالة الخطأ
-                codeError.style.display = 'none';
-                inviteCodeInput.classList.remove('error');
-                
-                // تحميل الأعضاء
-                loadMembers();
-                
-                // تحديث الإحصائيات
-                updateStatistics();
-            } else {
-                // إظهار رسالة الخطأ
-                codeError.style.display = 'block';
-                inviteCodeInput.classList.add('error');
-                inviteCodeInput.focus();
-                
-                // اهتزاز حقل الإدخال للإشارة إلى الخطأ
-                inviteCodeInput.animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-10px)' },
-                    { transform: 'translateX(10px)' },
-                    { transform: 'translateX(0)' }
-                ], {
-                    duration: 300,
-                    iterations: 2
-                });
-            }
-        });
-        
-        // إعادة ضبط حالة الدخول
-        resetBtn.addEventListener('click', function() {
-            inviteCodeInput.value = '';
-            inviteCodeInput.focus();
-            codeError.style.display = 'none';
-            inviteCodeInput.classList.remove('error');
-            alert('تم إعادة ضبط حالة الدخول. يمكنك الآن إدخال الكود الصحيح.');
-        });
-        
-        // تسجيل الخروج
-        logoutBtn.addEventListener('click', function() {
-            app.style.display = 'none';
-            loginPage.style.display = 'flex';
-            inviteCodeInput.value = '';
-            inviteCodeInput.focus();
-            alert('تم تسجيل الخروج بنجاح.');
-        });
-        
-        // تحميل الأعضاء وعرضهم
-        function loadMembers() {
-            membersList.innerHTML = '';
-            
-            if(members.length === 0) {
-                emptyMembers.style.display = 'block';
-                return;
-            }
-            
-            emptyMembers.style.display = 'none';
-            
-            members.forEach(member => {
-                const memberCard = document.createElement('div');
-                memberCard.className = 'member-card';
-                memberCard.innerHTML = `
-                    <div class="member-header">
-                        <div class="member-icon">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <div class="member-name">${member.fullName}</div>
-                            <div class="member-type">${member.memberType}</div>
-                        </div>
-                    </div>
-                    <div class="member-body">
-                        <div class="member-info">
-                            <i class="fas fa-phone"></i>
-                            <span>${member.phone}</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${member.address.substring(0, 20)}${member.address.length > 20 ? '...' : ''}</span>
-                        </div>
-                        <div class="member-info">
-                            <i class="fas fa-child"></i>
-                            <span>${member.childrenCount} أطفال (${member.childrenAges})</span>
-                        </div>
-                        
-                        <div class="member-actions">
-                            <button class="action-btn view-member" data-id="${member.id}">
-                                <i class="fas fa-eye"></i> تفاصيل
-                            </button>
-                            <button class="action-btn delete delete-member" data-id="${member.id}">
-                                <i class="fas fa-trash"></i> حذف
-                            </button>
-                        </div>
-                    </div>
-                `;
-                membersList.appendChild(memberCard);
-            });
-            
-            // إضافة مستمعات الأحداث للأزرار الجديدة
-            document.querySelectorAll('.view-member').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const memberId = this.getAttribute('data-id');
-                    showMemberDetails(memberId);
-                });
-            });
-            
-            document.querySelectorAll('.delete-member').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const memberId = this.getAttribute('data-id');
-                    const member = members.find(m => m.id == memberId);
-                    showDeleteConfirmation(member);
-                });
-            });
-        }
-        
-        // عرض تفاصيل العضو
-        function showMemberDetails(memberId) {
-            const member = members.find(m => m.id == memberId);
-            if(member) {
-                document.getElementById('memberTitle').innerHTML = `
-                    <h2 style="color: var(--primary);">${member.fullName} <small style="font-size: 16px; background: var(--light); padding: 3px 10px; border-radius: 20px;">${member.memberType}</small></h2>
-                `;
-                
-                // عرض تفاصيل العضو
-                showPage(memberDetailsPage);
-            }
-        }
-        
-        // تأكيد حذف العضو
-        function showDeleteConfirmation(member) {
-            memberToDelete.textContent = member.fullName;
-            deleteConfirmation.style.display = 'flex';
-        }
-        
-        // إخفاء تأكيد الحذف
-        cancelDeleteBtn.addEventListener('click', function() {
-            deleteConfirmation.style.display = 'none';
-        });
-        
-        // تأكيد الحذف
-        confirmDeleteBtn.addEventListener('click', function() {
-            const memberName = memberToDelete.textContent;
-            members = members.filter(m => m.fullName !== memberName);
-            loadMembers();
-            deleteConfirmation.style.display = 'none';
-            showPage(membersPage);
-            alert(`تم حذف العضو ${memberName} بنجاح`);
-        });
-        
-        // إضافة عضو جديد
-        addMemberBtn.addEventListener('click', function() {
-            showPage(addMemberPage);
-        });
-        
-        // إلغاء إضافة عضو
-        cancelAddMember.addEventListener('click', function() {
-            showPage(membersPage);
-        });
-        
-        // حفظ العضو الجديد
-        saveMemberBtn.addEventListener('click', function() {
-            const fullName = document.getElementById('fullName').value;
-            if(!fullName) {
-                alert('الرجاء إدخال الاسم الكامل');
-                return;
-            }
-            
-            const newMember = {
-                id: Date.now(),
-                fullName: fullName,
-                memberType: document.getElementById('memberType').value,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                priest: document.getElementById('priest').value,
-                childrenCount: document.getElementById('childrenCount').value,
-                childrenAges: document.getElementById('childrenAges').value,
-                job: document.getElementById('job').value,
-                idNumber: document.getElementById('idNumber').value,
-                preferredContact: document.getElementById('preferredContact').value,
-                maritalStatus: document.getElementById('maritalStatus').value,
-                birthdate: document.getElementById('birthdate').value
-            };
-            
-            members.push(newMember);
-            loadMembers();
-            showPage(membersPage);
-            alert(`تم إضافة العضو ${fullName} بنجاح`);
-        });
-        
-        // تسجيل الحضور
-        attendanceBtn.addEventListener('click', function() {
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('attendanceDate').value = formattedDate;
-            loadAttendanceList();
-            showPage(attendancePage);
-        });
-        
-        // تحميل قائمة الحضور
-        function loadAttendanceList() {
-            const attendanceList = document.getElementById('attendanceList');
-            attendanceList.innerHTML = '';
-            
-            members.forEach(member => {
-                const card = document.createElement('div');
-                card.className = 'attendance-card';
-                card.innerHTML = `
-                    <h3>
-                        <i class="fas fa-user"></i>
-                        ${member.fullName} (${member.memberType})
-                    </h3>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="attended-${member.id}" name="attended">
-                        <label for="attended-${member.id}">حضر الاجتماع</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="visited-${member.id}" name="visited">
-                        <label for="visited-${member.id}">تم الافتقاد</label>
-                    </div>
-                    <div class="input-group">
-                        <label for="notes-${member.id}">ملاحظات</label>
-                        <input type="text" id="notes-${member.id}" placeholder="ملاحظات إضافية">
-                    </div>
-                `;
-                attendanceList.appendChild(card);
-            });
-        }
-        
-        // حفظ بيانات الحضور
-        saveAttendanceBtn.addEventListener('click', function() {
-            const date = document.getElementById('attendanceDate').value;
-            if(!date) {
-                alert('الرجاء تحديد تاريخ الاجتماع');
-                return;
-            }
-            
-            members.forEach(member => {
-                const attended = document.getElementById(`attended-${member.id}`).checked;
-                const visited = document.getElementById(`visited-${member.id}`).checked;
-                const notes = document.getElementById(`notes-${member.id}`).value;
-                
-                if(attended || visited || notes) {
-                    attendanceRecords.push({
-                        date: date,
-                        memberId: member.id,
-                        memberName: member.fullName,
-                        attended: attended,
-                        visited: visited,
-                        notes: notes
-                    });
+            if(userType === 'admin') {
+                if(enteredCode === INVITE_CODE) {
+                    currentUser = { 
+                        type: 'admin',
+                        name: 'المسؤول'
+                    };
+                    // ... (بقية كود الدخول) ...
+                    
+                    // تحديث رسالة الترحيب
+                    updateUserWelcome();
                 }
+            } else if(userType === 'servant') {
+                // ... (بقية كود الدخول) ...
+                
+                if(servant) {
+                    currentUser = {
+                        type: 'servant',
+                        id: servant.id,
+                        name: servant.name
+                    };
+                    // ... (بقية كود الدخول) ...
+                    
+                    // تحديث رسالة الترحيب
+                    updateUserWelcome();
+                }
+            }
+            // ... (بقية كود الدخول) ...
+        });
+        
+        // تحديث رسالة الترحيب
+        function updateUserWelcome() {
+            if(currentUser) {
+                loggedInUser.textContent = `مرحباً ${currentUser.name}!`;
+                userRole.textContent = `(${currentUser.type === 'admin' ? 'المسؤول' : 'خادم'})`;
+            }
+        }
+        
+        // وظائف صفحة الخدام
+        function setupServantsPage() {
+            // إضافة مستمعات الأحداث لأزرار الخدام
+            document.querySelectorAll('.edit-servant').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const servantId = this.getAttribute('data-id');
+                    openServantForm(servantId);
+                });
             });
             
-            alert('تم تسجيل الحضور بنجاح');
-            showPage(homePage);
-        });
-        
-        // إلغاء تسجيل الحضور
-        cancelAttendanceBtn.addEventListener('click', function() {
-            showPage(homePage);
-        });
-        
-        // توليد التقرير
-        generateReportBtn.addEventListener('click', function() {
-            createCharts();
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <strong>تم توليد التقرير بنجاح!</strong>
-                    <p>يمكنك الآن تصدير التقرير أو طباعته.</p>
-                </div>
-            `;
-            document.querySelector('#reportsPage .app-content').prepend(alert);
-            
-            setTimeout(() => {
-                alert.remove();
-            }, 3000);
-        });
-        
-        // إنشاء الرسوم البيانية
-        function createCharts() {
-            // رسم بياني للحضور
-            const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-            if(attendanceCtx.chart) {
-                attendanceCtx.chart.destroy();
-            }
-            attendanceCtx.chart = new Chart(attendanceCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['ماريان حنا', 'بطرس سمير', 'سميرة فوزي', 'جورج نبيل', 'نادية رامي'],
-                    datasets: [{
-                        label: 'عدد مرات الحضور',
-                        data: [5, 3, 4, 4, 2],
-                        backgroundColor: 'rgba(44, 110, 73, 0.7)',
-                        borderColor: 'rgba(44, 110, 73, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
+            document.querySelectorAll('.delete-servant').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const servantId = this.getAttribute('data-id');
+                    const servant = servants.find(s => s.id == servantId);
+                    if(servant) {
+                        servantToDelete.textContent = servant.name;
+                        deleteServantConfirmation.style.display = 'flex';
+                        deleteServantConfirmation.setAttribute('data-id', servantId);
                     }
-                }
+                });
             });
             
-            // رسم بياني للافتقاد
-            const visitationCtx = document.getElementById('visitationChart').getContext('2d');
-            if(visitationCtx.chart) {
-                visitationCtx.chart.destroy();
-            }
-            visitationCtx.chart = new Chart(visitationCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['زيارات منزلية', 'مكالمات', 'رسائل'],
-                    datasets: [{
-                        data: [4, 6, 2],
-                        backgroundColor: [
-                            'rgba(44, 110, 73, 0.7)',
-                            'rgba(76, 149, 108, 0.7)',
-                            'rgba(27, 67, 50, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(44, 110, 73, 1)',
-                            'rgba(76, 149, 108, 1)',
-                            'rgba(27, 67, 50, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
+            document.querySelectorAll('.reports-servant').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const servantId = this.getAttribute('data-id');
+                    alert(`سيتم عرض تقارير الخادم (ID: ${servantId}) - هذه الميزة قيد التطوير`);
+                });
             });
         }
         
-        // تحديث الإحصائيات
-        function updateStatistics() {
-            document.getElementById('totalMembers').textContent = members.length;
-            document.getElementById('totalAttendance').textContent = "24";
-            document.getElementById('totalVisits').textContent = "12";
-            document.getElementById('newMembers').textContent = "3";
+        // فتح نموذج الخادم
+        function openServantForm(servantId = null) {
+            servantFormError.textContent = '';
+            servantFormError.style.display = 'none';
+            
+            if(servantId) {
+                // وضع التعديل
+                const servant = servants.find(s => s.id == servantId);
+                if(servant) {
+                    servantFormTitle.innerHTML = '<i class="fas fa-user-edit"></i> تعديل بيانات الخادم';
+                    document.getElementById('servantName').value = servant.name;
+                    document.getElementById('servantPhoneForm').value = servant.phone;
+                    document.getElementById('servantPassword').value = '';
+                    document.getElementById('servantConfirmPassword').value = '';
+                    servantFormModal.setAttribute('data-id', servantId);
+                }
+            } else {
+                // وضع الإضافة
+                servantFormTitle.innerHTML = '<i class="fas fa-user-plus"></i> إضافة خادم جديد';
+                document.getElementById('servantName').value = '';
+                document.getElementById('servantPhoneForm').value = '';
+                document.getElementById('servantPassword').value = '';
+                document.getElementById('servantConfirmPassword').value = '';
+                servantFormModal.removeAttribute('data-id');
+            }
+            
+            servantFormModal.style.display = 'flex';
         }
         
-        // التنقل بين الصفحات
-        function showPage(page) {
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            page.style.display = 'block';
+        // حفظ بيانات الخادم
+        saveServantBtn.addEventListener('click', function() {
+            const name = document.getElementById('servantName').value.trim();
+            const phone = document.getElementById('servantPhoneForm').value.trim();
+            const password = document.getElementById('servantPassword').value;
+            const confirmPassword = document.getElementById('servantConfirmPassword').value;
+            const servantId = servantFormModal.getAttribute('data-id');
+            
+            // التحقق من البيانات
+            if(!name || !phone || !password) {
+                showServantError('الرجاء ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            if(password !== confirmPassword) {
+                showServantError('كلمة المرور وتأكيدها غير متطابقين');
+                return;
+            }
+            
+            if(servantId) {
+                // تحديث الخادم الموجود
+                const index = servants.findIndex(s => s.id == servantId);
+                if(index !== -1) {
+                    servants[index].name = name;
+                    servants[index].phone = phone;
+                    servants[index].password = password;
+                }
+            } else {
+                // إضافة خادم جديد
+                const newServant = {
+                    id: Date.now(),
+                    name: name,
+                    phone: phone,
+                    password: password
+                };
+                servants.push(newServant);
+            }
+            
+            // إعادة عرض الخدام
+            renderServants();
+            servantFormModal.style.display = 'none';
+            alert(`تم ${servantId ? 'تحديث' : 'إضافة'} الخادم بنجاح`);
+        });
+        
+        // إظهار خطأ في نموذج الخادم
+        function showServantError(message) {
+            servantFormError.textContent = message;
+            servantFormError.style.display = 'block';
         }
         
-        // أحداث التنقل
-        homeBtn.addEventListener('click', () => showPage(homePage));
-        membersBtn.addEventListener('click', () => {
-            showPage(membersPage);
-            // إخفاء معاينة الاستيراد
-            filePreview.style.display = 'none';
-            importActions.style.display = 'none';
-        });
-        reportsBtn.addEventListener('click', () => {
-            showPage(reportsPage);
-            createCharts();
+        // حذف الخادم
+        confirmServantDeleteBtn.addEventListener('click', function() {
+            const servantId = deleteServantConfirmation.getAttribute('data-id');
+            if(servantId) {
+                servants = servants.filter(s => s.id != servantId);
+                renderServants();
+                deleteServantConfirmation.style.display = 'none';
+                alert('تم حذف الخادم بنجاح');
+            }
         });
         
-        // إضافة أول عضو
-        addFirstMember.addEventListener('click', () => showPage(addMemberPage));
+        // إلغاء حذف الخادم
+        cancelServantDeleteBtn.addEventListener('click', function() {
+            deleteServantConfirmation.style.display = 'none';
+        });
         
-        // فتح نافذة اختيار الملف
-        browseFileBtn.addEventListener('click', function() {
+        // إلغاء نموذج الخادم
+        cancelServantBtn.addEventListener('click', function() {
+            servantFormModal.style.display = 'none';
+        });
+        
+        // عرض الخدام
+        function renderServants() {
+            const servantsList = document.getElementById('servantsList');
+            servantsList.innerHTML = '';
+            
+            servants.forEach(servant => {
+                const servantCard = document.createElement('div');
+                servantCard.className = 'servant-card';
+                servantCard.innerHTML = `
+                    <h3><i class="fas fa-user"></i> ${servant.name}</h3>
+                    <div class="member-info">
+                        <i class="fas fa-phone"></i>
+                        <span><strong>رقم الهاتف:</strong> ${servant.phone}</span>
+                    </div>
+                    <div class="servant-actions">
+                        <button class="action-btn edit-servant" data-id="${servant.id}">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                        <button class="action-btn delete delete-servant" data-id="${servant.id}">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                        <button class="action-btn reports-servant" data-id="${servant.id}">
+                            <i class="fas fa-chart-bar"></i> التقارير
+                        </button>
+                    </div>
+                `;
+                servantsList.appendChild(servantCard);
+            });
+            
+            // إعداد الأزرار بعد العرض
+            setupServantsPage();
+        }
+        
+        // استيراد الأعضاء من Excel
+        importExcelBtn.addEventListener('click', function() {
             excelFileInput.click();
         });
         
-        // سحب وإفلات الملف
-        fileDropArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('active');
-        });
-        
-        fileDropArea.addEventListener('dragleave', function() {
-            this.classList.remove('active');
-        });
-        
-        fileDropArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('active');
-            
-            if(e.dataTransfer.files.length) {
-                excelFileInput.files = e.dataTransfer.files;
-                handleExcelFile(e.dataTransfer.files[0]);
-            }
-        });
-        
-        // اختيار الملف
         excelFileInput.addEventListener('change', function(e) {
-            if(this.files.length) {
-                handleExcelFile(this.files[0]);
-            }
-        });
-        
-        // معالجة ملف Excel
-        function handleExcelFile(file) {
-            const reader = new FileReader();
+            const file = e.target.files[0];
+            if(!file) return;
             
+            const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const workbook = XLSX.read(data, {type: 'array'});
                     
-                    // الحصول على الورقة الأولى
+                    // الحصول على أول ورقة عمل
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
                     // تحويل إلى JSON
                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
                     
-                    if(jsonData.length === 0) {
-                        throw new Error('الملف لا يحتوي على بيانات');
-                    }
+                    // معالجة البيانات
+                    const importedMembers = jsonData.map(row => ({
+                        id: Date.now() + Math.floor(Math.random() * 1000), // ID فريد
+                        fullName: row['الاسم الكامل'] || '',
+                        memberType: row['النوع'] || 'بابا',
+                        phone: row['الهاتف'] || '',
+                        address: row['العنوان'] || '',
+                        childrenCount: row['عدد الأطفال'] || 0,
+                        childrenAges: row['أعمار الأطفال'] || '',
+                        notes: row['ملاحظات'] || '',
+                        barcode: Math.random().toString(36).substr(2, 9).toUpperCase()
+                    }));
                     
-                    // تخزين البيانات مؤقتًا
-                    importedData = jsonData;
+                    // إضافة للأعضاء
+                    members = members.concat(importedMembers);
+                    loadMembers();
+                    updateStatistics();
                     
-                    // عرض معاينة البيانات
-                    showPreview(jsonData);
-                    
+                    alert(`تم استيراد ${importedMembers.length} عضو بنجاح`);
                 } catch (error) {
-                    alert('خطأ في معالجة الملف: ' + error.message);
-                    console.error(error);
+                    console.error('Error importing Excel:', error);
+                    alert('حدث خطأ أثناء استيراد الملف. يرجى التأكد من صيغة الملف.');
                 }
-            };
-            
-            reader.onerror = function() {
-                alert('حدث خطأ أثناء قراءة الملف');
             };
             
             reader.readAsArrayBuffer(file);
-        }
-        
-        // عرض معاينة البيانات
-        function showPreview(data) {
-            if(data.length === 0) return;
-            
-            // عرض أول 5 صفوف فقط للمعاينة
-            const previewData = data.slice(0, 5);
-            
-            let tableHtml = `
-                <table class="preview-table">
-                    <thead>
-                        <tr>
-            `;
-            
-            // رؤوس الجدول (أسماء الأعمدة)
-            const headers = Object.keys(previewData[0]);
-            headers.forEach(header => {
-                tableHtml += `<th>${header}</th>`;
-            });
-            
-            tableHtml += `
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            // بيانات الصفوف
-            previewData.forEach(row => {
-                tableHtml += '<tr>';
-                headers.forEach(header => {
-                    tableHtml += `<td>${row[header] || ''}</td>`;
-                });
-                tableHtml += '</tr>';
-            });
-            
-            tableHtml += `
-                    </tbody>
-                </table>
-            `;
-            
-            previewTable.innerHTML = tableHtml;
-            filePreview.style.display = 'block';
-            importActions.style.display = 'flex';
-        }
-        
-        // تأكيد الاستيراد
-        confirmImportBtn.addEventListener('click', function() {
-            if(!importedData || importedData.length === 0) {
-                alert('لا توجد بيانات للاستيراد');
-                return;
-            }
-            
-            // تحويل البيانات إلى تنسيق الأعضاء
-            const newMembers = importedData.map(row => {
-                return {
-                    id: Date.now() + Math.floor(Math.random() * 1000), // إنشاء معرف فريد
-                    fullName: row['الاسم الكامل'] || '',
-                    memberType: row['النوع'] || 'بابا',
-                    phone: row['رقم الهاتف'] || '',
-                    address: row['العنوان'] || '',
-                    priest: row['كاهن المنطقة'] || '',
-                    childrenCount: row['عدد الأطفال'] || 0,
-                    childrenAges: row['أعمار الأطفال'] || '',
-                    job: row['الوظيفة'] || '',
-                    idNumber: row['رقم الهوية'] || '',
-                    preferredContact: row['الطريقة المفضلة للافتقاد'] || 'مكالمة',
-                    maritalStatus: row['حالة الزوج/ة'] || 'موجود',
-                    birthdate: row['تاريخ الميلاد'] || ''
-                };
-            });
-            
-            // دمج الأعضاء الجدد مع القائمة الحالية
-            members = [...members, ...newMembers];
-            loadMembers();
-            
-            // إظهار رسالة نجاح
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <strong>تم استيراد الأعضاء بنجاح!</strong>
-                    <p>تم إضافة ${newMembers.length} عضو جديد إلى قاعدة البيانات.</p>
-                </div>
-            `;
-            membersPage.prepend(alert);
-            
-            // إخفاء الرسالة بعد 5 ثوان
-            setTimeout(() => {
-                alert.remove();
-            }, 5000);
-            
-            // إخفاء معاينة الاستيراد
-            filePreview.style.display = 'none';
-            importActions.style.display = 'none';
         });
         
-        // إلغاء الاستيراد
-        cancelImportBtn.addEventListener('click', function() {
-            filePreview.style.display = 'none';
-            importActions.style.display = 'none';
-            importedData = null;
-        });
-        
-        // تحميل نموذج إكسل
-        downloadTemplate.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // إنشاء نموذج بيانات
-            const templateData = [
-                {
-                    "الاسم الكامل": "مثال: أحمد محمد",
-                    "النوع": "بابا",
-                    "رقم الهاتف": "01234567890",
-                    "العنوان": "مثال: 15 شارع الكنيسة، القاهرة",
-                    "كاهن المنطقة": "مثال: الأب بطرس",
-                    "عدد الأطفال": "3",
-                    "أعمار الأطفال": "5,8,12",
-                    "الوظيفة": "مثال: معلم",
-                    "رقم الهوية": "29906150101234",
-                    "الطريقة المفضلة للافتقاد": "مكالمة",
-                    "حالة الزوج/ة": "موجود",
-                    "تاريخ الميلاد": "1985-03-12"
-                }
-            ];
-            
-            // إنشاء ورقة عمل
-            const ws = XLSX.utils.json_to_sheet(templateData);
-            
-            // إنشاء مصنف
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "أعضاء");
-            
-            // تنزيل الملف
-            XLSX.writeFile(wb, "نموذج_استيراد_الأعضاء.xlsx");
-        });
-        
-        // تحميل الصفحة
+        // عند تحميل الصفحة
         window.addEventListener('DOMContentLoaded', function() {
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('attendanceDate').value = formattedDate;
+            // ... (بقية كود التحميل) ...
             
-            // إضافة بيانات إضافية للأعضاء
-            members.push({
-                id: 4,
-                fullName: "جورج نبيل",
-                memberType: "بابا",
-                phone: "01001112233",
-                address: "8 شارع الجامعة، المنصورة",
-                priest: "الأب يوحنا",
-                childrenCount: 1,
-                childrenAges: "7",
-                job: "محاسب",
-                idNumber: "29011150101234",
-                preferredContact: "زيارة",
-                maritalStatus: "موجود",
-                birthdate: "1987-09-30"
+            // إعداد صفحة الخدام عند عرضها
+            servantsBtn.addEventListener('click', function() {
+                renderServants();
+                showPage(servantsPage);
             });
-            
-            members.push({
-                id: 5,
-                fullName: "نادية رامي",
-                memberType: "ماما",
-                phone: "01223334455",
-                address: "33 شارع الثورة، طنطا",
-                priest: "الأب مرقس",
-                childrenCount: 2,
-                childrenAges: "4,9",
-                job: "ممرضة",
-                idNumber: "29503150101234",
-                preferredContact: "مكالمة",
-                maritalStatus: "موجود",
-                birthdate: "1989-01-22"
-            });
-            
-            // تحميل الأعضاء
-            loadMembers();
         });
     </script>
 </body>
